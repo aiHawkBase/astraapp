@@ -25,84 +25,90 @@ document.addEventListener('DOMContentLoaded', () => {
         // API Key artık sistemde (Backend) kayıtlıdır. Frontend'de saklanmaz.
 
         async generateReading(userProfile) {
-            console.log("Gemini API'ye bağlanılıyor...", userProfile);
+            console.log("Astra API: Analiz İsteği Gönderiliyor...", userProfile);
 
-            // 1. Prompt Hazırlığı (ZENGİNLEŞTİRİLMİŞ İÇERİK)
+            const name = userProfile.name || "Sevgili Ruh";
+            const birthDate = userProfile.birthDate || "Bilinmiyor";
+            const birthTime = userProfile.birthTime || "Bilinmiyor";
+            const birthCity = userProfile.city || "Bilinmiyor";
+            const sunSign = userProfile.sign || "Bilinmiyor";
+
+            // 50 SAYFA EŞDEĞERİ PROMPT
             const prompt = `
-            Sen dünyanın en ünlü ve sezgileri en kuvvetli astrologususun. Kullanıcı için hayatını değiştirecek derinlikte, 12 sayfalık bir kitap olabilecek kadar detaylı bir astroloji ve numeroloji analizi yap.
-            
-            KULLANICI BİLGİLERİ:
-            İsim: ${userProfile.name}
-            Doğum Tarihi: ${userProfile.birthDate}
-            Doğum Saati: ${userProfile.birthTime}
-            Doğum Yeri: ${userProfile.city}, ${userProfile.district}
-            Burç: ${userProfile.sign} (Fiziksel Özellikler ve Karakter)
-            Element: ${userProfile.element}
+                Sen evrenin sırlarına vakıf, kadim bilgeliklerle donanmış, mistik ve derin bir astroloji uzmanısın. 
+                Görevin, aşağıda bilgileri verilen kişi için "Hayat Kitabı" niteliğinde, yaklaşık 50 sayfa uzunluğunda (yaklaşık 8.000 - 10.000 kelime), 
+                son derece detaylı, felsefi, psikolojik ve spiritüel derinliği olan bir astroloji raporu hazırlamaktır.
 
-            İSTENEN JSON FORMATI (Sadece bu JSON'ı döndür, markdown kullanma):
-            {
-                "user_profile": {
-                    "sun_sign": "Güneş Burcu (Örnek: Koç - Öncü Ateş)",
-                    "rising_sign": "Yükselen Burcu (Tahmini ve detayı)",
-                    "moon_sign": "Ay Burcu (Tahmini ve duygusal analizi)",
-                    "life_path_number": "Hayat Yolu Sayısı (Numeroloji hesapla)",
-                    "spirit_animal": "Ruh Hayvanı (Metaforik)"
-                },
-                "short_readings": {
-                    "hook_1": "Kullanıcıyı şaşırtacak, ismine ve burcuna özel kısa, vurucu, gizemli bir cümle.",
-                    "current_vibe": "Şu anki gökyüzü transitlerine göre kullanıcının hissettiği ruh hali (Satürn baskısı, Jüpiter şansı vb.).",
-                    "mystery_alert": "Gelecek 6 ay içinde olması muhtemel DEVRİM niteliğinde bir olay uyarısı."
-                },
-                "full_report": {
-                    "intro": "Kullanıcıya ismen hitap eden, destansı bir giriş yazısı.",
-                    "chapter_1_identity": "GÜNEŞ BURCU: Egonun, yaşam enerjin ve dünyadaki duruşun üzerine derin analiz.",
-                    "chapter_2_mask": "YÜKSELEN BURCU (ASC): Başkalarının seni nasıl gördüğü ve takındığın sosyal maske.",
-                    "chapter_3_emotion": "AY BURCU: Bilinçaltın, annelik figürü algın ve duygusal ihtiyaçların.",
-                    "chapter_4_love": "AŞK VE İLİŞKİLER (Venüs/Mars): İdeal eş tanımı, ilişkilerdeki tekrar eden hataların ve çözüm yolları.",
-                    "chapter_5_karma": "SATÜRN VE KARMA: Bu hayattaki en büyük sınavın ne? Geçmiş yaşamdan getirdiğin borçlar.",
-                    "chapter_6_career": "KARİYER VE PARA (MC/Jüpiter): En uygun meslekler, zenginlik potansiyeli ve başarı tüyoları.",
-                    "chapter_7_numerology": "NUMEROLOJİ ANALİZİ: Hayat Yolu Sayısı'nın anlamı, kader yılı hesaplaması.",
-                    "chapter_8_forecast_q1": "ÖNÜMÜZDEKİ 3 AY (Çeyrek 1): Detaylı öngörüler, kritik tarihler.",
-                    "chapter_9_forecast_q2": "SONRAKİ 3 AY (Çeyrek 2): Beklenen fırsatlar ve riskler.",
-                    "chapter_10_ritual": "KİŞİSEL RİTÜEL: Kullanıcının enerjisini yükseltmek için yapması gereken basit bir ritüel (doğal taş, meditasyon vb.)"
-                },
-                "image_prompts": [
-                    "Kullanıcının burcunu ve elementini simgeleyen, altın detaylı, mistik tarot kartı (Cover)",
-                    "Kullanıcının ruh hayvanını temsil eden spiritüel sanat eseri (Spirit)",
-                    "Kullanıcının aşk hayatını simgeleyen iki gezegenin dansı, romantik ve kozmik (Love)",
-                    "Kullanıcının kariyer yolunu aydınlatan altın bir kapı ve merdivenler (Career)",
-                    "Kullanıcının karmasını temsil eden antik bir kum saati ve yıldızlar (Karma)"
-                ]
-            }
+                **Kullanıcı Bilgileri:**
+                - İsim: ${name}
+                - Doğum Tarihi: ${birthDate}
+                - Doğum Saati: ${birthTime}
+                - Doğum Yeri: ${birthCity}
+                - Burç: ${sunSign}
+
+                **RAPOR YAZIM KURALLARI (ÇOK ÖNEMLİ):**
+                1. **UZUNLUK VE DERİNLİK:** Her bölüm EN AZ 800-1000 kelime olmalıdır. Yüzeysel geçiştirmelerden kaçın. Konuları tarihten, mitolojiden ve psikolojiden örneklerle derinleştir.
+                2. **ÜSLUP:** Mistik, akıcı, etkileyici, yer yer şiirsel ama aynı zamanda somut hayat tavsiyeleri içeren bir dil kullan. Okuyucuyu büyüle.
+                3. **FORMAT:** Yanıtın SADECE aşağıda belirtilen JSON formatında olmalıdır. Markdown blokları ('''json) kullanma.
+                
+                **İSTENEN JSON FORMATI VE BÖLÜM İÇERİKLERİ:**
+                {
+                    "user_profile": {
+                         "sun_sign": "Güneş Burcu (Örnek: Koç - Öncü Ateş)",
+                         "rising_sign": "Yükselen Burcu (Tahmini ve detayı)",
+                         "moon_sign": "Ay Burcu (Tahmini ve duygusal analizi)",
+                         "life_path_number": "Hayat Yolu Sayısı",
+                         "spirit_animal": "Ruh Hayvanı"
+                    },
+                    "short_readings": {
+                         "hook_1": "Kısa vurucu cümle",
+                         "current_vibe": "Mevcut ruh hali",
+                         "mystery_alert": "Gizemli uyarı"
+                    },
+                    "full_report": {
+                        "intro": "Kullanıcıya ismen hitap eden, yaklaşık 500 kelimelik, ruhsal potansiyelini öven ve bu raporun onun hayatındaki önemini anlatan mistik bir giriş yazısı.",
+                        "chapter_1_identity": "GÜNEŞ BURCU VE KİMLİK: Kişinin egosu, yaşam amacı, babasıyla ilişkisi, parladığı alanlar, gölge yönleri, mitolojik karşılığı ve bu hayatta öğrenmesi gereken temel dersler. (En az 1000 kelime)",
+                        "chapter_2_mask": "YÜKSELEN BURCU VE SOSYAL MASKE: Kişinin dış dünyaya gösterdiği yüz, fiziksel özellikleri, ilk izlenimi, insanlarla etkileşimi, hayatının gidişatı ve başkalarının onu nasıl algıladığı. (En az 800 kelime)",
+                        "chapter_3_emotion": "AY BURCU VE DUYGUSAL DÜNYA: Kişinin bilinçaltı, annesiyle ilişkisi, duygusal ihtiyaçları, korkuları, güvende hissetme yolları, çocukluğu ve ruhsal kökleri. Ruh hayvanının sembolizmiyle bağlantı kur. (En az 1000 kelime)",
+                        "chapter_4_love": "AŞK, İLİŞKİLER VE CİNSELLİK: Venüs ve Mars etkileri, kişinin aşk dili, ideal partneri, ilişkilerde yaptığı hatalar, cinsel enerjisi, çekiciliği ve evlilik potansiyeli. (En az 1000 kelime)",
+                        "chapter_5_karma": "KARMA, SATÜRN VE ÖNCEKİ YAŞAMLAR: Kişinin bu hayata getirdiği karmik borçlar, Satürn'ün sınavları, yaşamındaki en büyük zorluklar, korkuları ve bunları nasıl aşarak ustalığa dönüşeceği. Güney Ay Düğümü bağlantıları. (En az 1000 kelime)",
+                        "chapter_6_career": "KARİYER, FİNANS VE BAŞARI: Kişinin mesleki yetenekleri, para kazanma potansiyeli, yönetici mi yoksa yaratıcı mı olduğu, finansal şansı ve ideal kariyer yolları. Jüpiter şansı. (En az 800 kelime)",
+                        "chapter_7_numerology": "NUMEROLOJİ VE KADER SAYISI: Hayat Yolu Numarasının derin analizi. Bu sayının titreşimi, yaşam amacı, güçlü ve zayıf yönleri, meslek ve ilişki uyumları. (En az 600 kelime)",
+                        "chapter_8_forecast_q1": "GELECEK PROJEKSİYONU (İLK 3 AY): Önümüzdeki 3 ayın (Ay ay detaylandırarak) astrolojik etkileri, fırsatlar, riskler ve tavsiyeler. (En az 600 kelime)",
+                        "chapter_9_forecast_q2": "GELECEK PROJEKSİYONU (SONRAKİ 3 AY): Sonraki 3 ayın (Ay ay detaylandırarak) genel atmosferi, önemli tarihleri ve stratejik öneriler. (En az 600 kelime)",
+                        "chapter_10_ritual": "KİŞİSEL GÜÇ RİTÜELİ: Kişinin enerjisini dengelemesi, blokajlarını kaldırması ve dileklerine ulaşması için ona özel tasarlanmış; malzemeleri, uygulama zamanı ve adımları detaylıca anlatılan, uygulanabilir bir ritüel. (En az 500 kelime)"
+                    },
+                    "image_prompts": [
+                        "Kullanıcının burcunu ve elementini simgeleyen, altın detaylı, mistik tarot kartı (Cover)",
+                        "Kullanıcının ruh hayvanını temsil eden spiritüel sanat eseri (Spirit)",
+                        "Kullanıcının aşk hayatını simgeleyen iki gezegenin dansı, romantik ve kozmik (Love)",
+                        "Kullanıcının kariyer yolunu aydınlatan altın bir kapı ve merdivenler (Career)",
+                        "Kullanıcının karmasını temsil eden antik bir kum saati ve yıldızlar (Karma)"
+                    ]
+                }
+
+                Sadece saf JSON döndür, başka hiçbir metin ekleme.
             `;
 
-            // 2. API İsteği (Artık Kuyruk Sistemi - Job Queue)
             try {
-                // V2: Önce Job ID al
-                console.log("Job Talebi Gönderiliyor...");
-                const initRes = await fetch('/api/generate-reading', {
+                // 1. Job Oluştur (API'ye Gönder)
+                const res = await fetch('/api/generate-reading', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt: prompt })
                 });
 
-                if (!initRes.ok) throw new Error(`API Başlatma Hatası: ${initRes.status}`);
+                if (!res.ok) throw new Error("API Hatası");
 
-                const initData = await initRes.json();
-                const jobId = initData.jobId;
-
-                if (!jobId) {
-                    // Fallback (Eski usül ani yanıt döndüyse)
-                    if (initData.full_report) return initData;
-                    throw new Error("Job ID alınamadı.");
-                }
+                const data = await res.json();
+                const jobId = data.jobId;
 
                 console.log(`Job Başlatıldı: ${jobId}. Bekleniyor...`);
 
                 // 3. Polling (Durum Sorgulama)
                 let pollResult = null;
                 let attempts = 0;
-                const MAX_ATTEMPTS = 60; // 2 dk timeout (2s x 60)
+                const MAX_ATTEMPTS = 90; // 3 dk timeout (2s x 90) - Uzun prompt için artırıldı
 
                 while (!pollResult && attempts < MAX_ATTEMPTS) {
                     attempts++;
@@ -143,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         mystery_alert: "Büyük bir fırsat kapıda."
                     },
                     full_report: {
-                        intro: "Yıldızlar bazen sislerin ardına gizlenir... Ancak senin ışığın hala parlıyor.",
+                        intro: "Sistemde geçici bir yoğunluk var, ancak yıldızların seninle olduğunu bil.",
                         chapter_1_identity: "Güneş burcun senin özünü temsil eder. Sen güçlü bir karaktere sahipsin.",
                         chapter_2_mask: "Yükselen burcun, dünyaya taktığın maskeyi gösterir.",
                         chapter_3_emotion: "Ay burcun, duygusal derinliğini yansıtır.",
@@ -151,8 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         chapter_5_karma: "Geçmişten getirdiğin yüklerden arınma vakti.",
                         chapter_6_career: "Yeteneklerini doğru kullanırsan başarı kaçınılmaz.",
                         chapter_7_numerology: "Hayat Yolu Sayın sana rehberlik edecek.",
-                        chapter_8_forecast_q1: "Önümüzdeki 3 ay planlama zamanı.",
-                        chapter_9_forecast_q2: "Sonraki 3 ay hasat zamanı.",
+                        chapter_8_forecast_q1: "Önümüzdeki dönem planlama zamanı.",
+                        chapter_9_forecast_q2: "Sonraki dönem hasat zamanı.",
                         chapter_10_ritual: "Her sabah 5 dakika meditasyon yap."
                     },
                     image_prompts: ["mystical zodiac art", "tarot card justice", "cosmic love", "golden career ladder", "karma wheel"]
@@ -457,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- REPORT RENDERING (DYNAMIC) ---
+    // --- REPORT RENDERING (SINGLE WALLPAPER LOGIC) ---
     async function renderFullReport() {
         if (!user.apiResult) return;
 
@@ -468,11 +475,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('report-user-name').innerText = user.name;
         document.getElementById('report-date').innerText = new Date().toLocaleDateString('tr-TR');
 
-        // GÖRSEL OLUŞTURMA İŞLEMLERİ (SIRALI - Kullanıcı İsteği)
-        const prompts = data.image_prompts || [];
-        const imageIds = ['img-cover', 'img-spirit', 'img-love', 'img-career', 'img-karma'];
-
-        // Önce placeholder metinleri göster
+        // TEK WALLPAPER PROMPT (Cover için)
+        // Eğer API'dan prompt gelmediyse fallback oluştur.
+        const wallpaperPrompt = (data.image_prompts && data.image_prompts.length > 0)
+            ? data.image_prompts[0]
+            : `Mystical tarot card for ${user.name}, ${profile.sun_sign}, gold accents, masterpiece, 8k`;
 
         let reportHTML = `
             <div class="report-intro">
@@ -486,80 +493,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             
-            <div class="report-page">
+            <div class="report-page cover-page">
                 <h2>Bölüm 1: Kozmik Kimliğin & Güneş</h2>
-                <div class="chart-placeholder" id="img-cover">
-                    <div class="loading-spinner"><i class="fa-solid fa-paintbrush fa-spin"></i> Özel Kartın Çiziliyor...</div>
+                <!-- WALLPAPER BURAYA GELECEK (100% Opacity) -->
+                <div class="chart-placeholder" id="img-wallpaper-cover" style="height: 600px; margin: 20px 0;">
+                    <div class="loading-spinner"><i class="fa-solid fa-paintbrush fa-spin"></i> Senin İçin Özel Bir Tablo Çiziliyor...</div>
                 </div>
-                <p>${report.chapter_1_identity}</p>
+                <p style="white-space: pre-line;">${report.chapter_1_identity}</p>
             </div>
 
-            <div class="report-page">
+            <!-- Diğer Sayfalar (Arka Plana Wallpaper Gelecek - CSS ile) -->
+            <div class="report-page wallpaper-bg">
                 <h2>Bölüm 2: Sosyal Masken (Yükselen)</h2>
-                <p>${report.chapter_2_mask}</p>
+                <p style="white-space: pre-line;">${report.chapter_2_mask}</p>
             </div>
 
-            <div class="report-page">
+            <div class="report-page wallpaper-bg">
                 <h2>Bölüm 3: Duygusal Dünyan (Ay)</h2>
-                <div class="chart-placeholder" id="img-spirit">
-                     <div class="loading-spinner"><i class="fa-solid fa-dragon fa-spin"></i> Ruh Hayvanın Çağırılıyor...</div>
-                </div>
                 <p><strong>Ruh Hayvanın:</strong> ${profile.spirit_animal}</p>
-                <p>${report.chapter_3_emotion}</p>
+                <p style="white-space: pre-line;">${report.chapter_3_emotion}</p>
             </div>
 
-            <div class="report-page">
+            <div class="report-page wallpaper-bg">
                 <h2>Bölüm 4: Aşk ve İlişkiler</h2>
-                <div class="chart-placeholder" id="img-love">
-                    <div class="loading-spinner"><i class="fa-solid fa-heart fa-spin"></i> Aşk Enerjisi Şekilleniyor...</div>
-                </div>
-                <p>${report.chapter_4_love}</p>
+                <p style="white-space: pre-line;">${report.chapter_4_love}</p>
             </div>
 
-            <div class="report-page">
+            <div class="report-page wallpaper-bg">
                 <h2>Bölüm 5: Karma ve Satürn</h2>
-                <div class="chart-placeholder" id="img-karma">
-                    <div class="loading-spinner"><i class="fa-solid fa-infinity fa-spin"></i> Karmik Döngü Çiziliyor...</div>
-                </div>
-                <p>${report.chapter_5_karma}</p>
+                <p style="white-space: pre-line;">${report.chapter_5_karma}</p>
             </div>
 
-            <div class="report-page">
+            <div class="report-page wallpaper-bg">
                 <h2>Bölüm 6: Kariyer ve Finans</h2>
-                <div class="chart-placeholder" id="img-career">
-                    <div class="loading-spinner"><i class="fa-solid fa-coins fa-spin"></i> Başarı Yolu Oluşturuluyor...</div>
-                </div>
-                <p>${report.chapter_6_career}</p>
+                <p style="white-space: pre-line;">${report.chapter_6_career}</p>
             </div>
 
-            <div class="report-page">
+            <div class="report-page wallpaper-bg">
                 <h2>Bölüm 7: Numeroloji & Kader</h2>
                 <div class="numerology-box">
                     <div class="num-circle">${profile.life_path_number}</div>
                     <div class="num-desc">
                         <h4>Hayat Yolu Sayın</h4>
-                        <p>${report.chapter_7_numerology}</p>
+                        <p style="white-space: pre-line;">${report.chapter_7_numerology}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="report-page forecast-page">
+            <div class="report-page wallpaper-bg forecast-page">
                 <h2>Bölüm 8 & 9: 6 Aylık Gelecek Projeksiyonu</h2>
                 <div class="forecast-card">
                     <h3>Önümüzdeki 3 Ay (Çeyrek 1)</h3>
-                    <p>${report.chapter_8_forecast_q1}</p>
+                    <p style="white-space: pre-line;">${report.chapter_8_forecast_q1}</p>
                 </div>
                 <div class="forecast-card">
                     <h3>Sonraki 3 Ay (Çeyrek 2)</h3>
-                    <p>${report.chapter_9_forecast_q2}</p>
+                    <p style="white-space: pre-line;">${report.chapter_9_forecast_q2}</p>
                 </div>
             </div>
 
-            <div class="report-page ritual-page">
+            <div class="report-page wallpaper-bg ritual-page">
                 <h2>Bölüm 10: Kişisel Ritüelin</h2>
                 <div class="ritual-box">
                     <span class="ritual-icon">🕯️</span>
-                    <p>${report.chapter_10_ritual}</p>
+                    <p style="white-space: pre-line;">${report.chapter_10_ritual}</p>
                 </div>
             </div>
             
@@ -572,79 +569,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
         contentDiv.innerHTML = reportHTML;
 
-        // Görselleri SIRAYLA (Sequential) Yükle
-        for (let i = 0; i < prompts.length; i++) {
-            if (i < imageIds.length) {
-                // Her görsel için bekle
-                await updateImage(imageIds[i], prompts[i]);
-                // Küçük bir bekleme (opsiyonel, API limitine takılmamak için)
-                await new Promise(r => setTimeout(r, 1000));
-            }
-        }
+        // TEK WALLPAPER ÇAĞRISI
+        await updateWallpaper(wallpaperPrompt);
     }
 
-    async function updateImage(elementId, prompt) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
+    async function updateWallpaper(prompt) {
+        const elCover = document.getElementById('img-wallpaper-cover');
+        if (!elCover) return;
 
-        // Spinning Icon + Message update
-        el.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-paintbrush fa-spin"></i> Özel çizim yapılıyor...</div>`;
+        const bgPages = document.querySelectorAll('.wallpaper-bg');
 
         try {
-            console.log(`Görsel isteniyor (${elementId}):`, prompt);
+            console.log(`Wallpaper isteniyor:`, prompt);
 
             let imageUrl = null;
 
             // 1. Önce Gemini Image Gen (Server üzerinden) Dene
             try {
-                // Pollinations yerine önce kendi API'mızı deniyoruz
                 const res = await fetch('/api/generate-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt: prompt + ", epic, cinematic lighting, 8k, wallpaper style" })
                 });
 
                 if (res.ok) {
                     const data = await res.json();
                     if (data.imageUrl) {
-                        imageUrl = data.imageUrl; // Base64 data:image/... döndürecek
-                        console.log("Gemini Image Kullanıldı");
+                        imageUrl = data.imageUrl;
+                        console.log("Wallpaper Üretildi (Gemini)");
                     }
                 }
             } catch (err) {
-                console.warn("Gemini Image Failed, falling back to Pollinations...", err);
+                console.warn("Wallpaper Gen Failed, falling back...", err);
             }
 
             // 2. Fallback: Pollinations.ai
             if (!imageUrl) {
-                // Pollinations için "Pro" seviyesinde detaylı prompt zenginleştirme
-                const refinedPrompt = `${prompt}, mystical tarot card style, cinematic lighting, 8k resolution, highly detailed, gold accents, ethereal atmosphere, digital art, masterpiece`;
+                const refinedPrompt = `${prompt}, mystical tarot card style, cinematic lighting, 8k resolution, highly detailed, gold accents, ethereal atmosphere, digital art, masterpiece, wallpaper`;
                 const encodedPrompt = encodeURIComponent(refinedPrompt);
                 const seed = Math.floor(Math.random() * 99999);
-                imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=800&height=1024&seed=${seed}&model=flux`;
+                imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux`;
             }
 
-            // Görseli Bas (Önce yüklenmesini bekle)
+            // Görseli Yükle
             const img = new Image();
             img.src = imageUrl;
 
-            await new Promise((resolve, reject) => {
+            await new Promise((resolve) => {
                 img.onload = resolve;
-                img.onerror = resolve; // Hata olsa bile devam et
+                img.onerror = resolve;
             });
 
-            el.innerHTML = '';
-            el.style.backgroundImage = `url('${imageUrl}')`;
-            el.style.backgroundSize = 'cover';
-            el.style.backgroundPosition = 'center';
-            el.style.height = '500px';
-            el.style.borderRadius = '15px';
-            el.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)';
-            el.style.transition = "all 0.5s ease";
+            // 1. Kapak Resmi (Tam Görünüm)
+            elCover.innerHTML = '';
+            elCover.style.backgroundImage = `url('${imageUrl}')`;
+            elCover.style.backgroundSize = 'cover';
+            elCover.style.backgroundPosition = 'center';
+            elCover.style.borderRadius = '15px';
+            elCover.style.boxShadow = '0 10px 40px rgba(0,0,0,0.5)';
+            elCover.style.height = '600px';
+
+            // 2. Diğer Sayfalara Arka Plan Olarak Ekle (10% Opacity Logic)
+            bgPages.forEach(page => {
+                // Linear Gradient ile Cream/Kağıt rengi katman (%92 Opacity) + Resim
+                // #fdfbf7 rengi (253, 251, 247) sitenin genel arka planıdır.
+                page.style.backgroundImage = `linear-gradient(rgba(253, 251, 247, 0.92), rgba(253, 251, 247, 0.92)), url('${imageUrl}')`;
+                page.style.backgroundSize = 'cover';
+                page.style.backgroundPosition = 'center';
+                page.style.backgroundAttachment = 'fixed'; // Parallax etkisi
+                page.style.border = '1px solid rgba(212, 175, 55, 0.3)'; // Premium Gold Sınır
+                page.style.boxShadow = '0 5px 15px rgba(0,0,0,0.05)'; // Hafif derinlik
+            });
 
         } catch (e) {
-            console.error("Resim yüklenemedi", e);
-            el.innerHTML = '<span class="error">Görsel oluşturulamadı</span>';
+            console.error("Wallpaper yüklenemedi", e);
+            elCover.innerHTML = '<span class="error">Görsel oluşturulamadı</span>';
         }
     }
 

@@ -2,8 +2,12 @@ const Database = require('better-sqlite3');
 const path = require('path');
 
 // Use a file inside the container (or persistent volume needed for DO)
-// For local dev, it creates astra.db in root
-const dbPath = path.join(__dirname, 'astra.db');
+// For Digital Ocean App Platform (Ephemeral), strictly use /tmp or a bound volume
+const dbPath = process.env.NODE_ENV === 'production'
+    ? '/tmp/astra.db'
+    : path.join(__dirname, 'astra.db');
+
+console.log(`Using Database at: ${dbPath}`);
 const db = new Database(dbPath, { verbose: console.log });
 
 function initDb() {

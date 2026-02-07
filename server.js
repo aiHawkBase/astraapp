@@ -149,33 +149,37 @@ app.post('/api/generate-image', async (req, res) => {
         });
 
         if (!response.ok) {
-            // Eğer Gemini Image çalışmazsa (404/403), frontend'e hata dön, frontend Pollinations'a düşsün.
+            // Log error but return 200 with null to trigger frontend fallback cleanly
             const err = await response.text();
-            console.error("Gemini Image API Error:", err);
-            return res.status(response.status).json({ error: "Gemini Image API Failed", details: err });
+            console.warn("Gemini Image API Failed (Falling back to Pollinations):", err);
+            return res.json({ imageUrl: null, error: "Gemini API Error" });
         }
 
         const data = await response.json();
 
         // Gemini Image Response Structure (Base64)
-        if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].inlineData) {
             const base64Image = data.candidates[0].content.parts[0].inlineData.data;
             const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType;
             return res.json({ imageUrl: `data:${mimeType};base64,${base64Image}` });
         } else {
-            return res.status(500).json({ error: "No image data in response" });
+            console.warn("No image data in Gemini response");
+            return res.json({ imageUrl: null });
         }
 
     } catch (error) {
         console.error('Image Gen Error:', error);
-        res.status(500).json({ error: error.message });
+        // Return 200 with null to fallback
+        res.json({ imageUrl: null, error: error.message });
     }
 });
 
 // --- ADMIN ROUTES ---
 
-// 1. Serve Admin Dashboard
-app.get('/admin', (req, res) => {
+// --- ADMIN ROUTES ---
+
+// 1. Serve Admin Dashboard (Obscure Path)
+app.get('/kutsal-yonetim-kapisi', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
@@ -202,5 +206,5 @@ app.post('/api/admin/config', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Admin Dashboard: http://localhost:${PORT}/admin`);
+    console.log(`Admin Dashboard: http://localhost:${PORT}/kutsal-yonetim-kapisi`);
 });
