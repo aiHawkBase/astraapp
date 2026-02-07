@@ -1,7 +1,7 @@
 {
-    "name": "astra-backend",
+    "name": "astra-app-full",
     "version": "1.0.0",
-    "description": "Secure API Proxy for Astra Astrology App",
+    "description": "Full Stack Astra Astrology App (Node.js + Static)",
     "main": "server.js",
     "dependencies": {
         "cors": "^2.8.5",

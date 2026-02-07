@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 require('dotenv').config();
 
@@ -9,11 +10,12 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('.')); // Serve static files from root
 
 // --- ROUTES ---
 
 // 1. Health Check
-app.get('/', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.send('Astra API Server is running...');
 });
 

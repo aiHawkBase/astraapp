@@ -79,16 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. API İsteği
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.GEMINI_API_KEY}`, {
+                // Backend artık aynı domain üzerinde çalışıyor, relative path kullanıyoruz.
+                const response = await fetch('/api/generate-reading', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: prompt }]
-                        }]
-                    })
+                    body: JSON.stringify({ prompt })
                 });
 
                 if (!response.ok) {
