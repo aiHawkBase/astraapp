@@ -42,8 +42,15 @@ app.post('/api/generate-reading', async (req, res) => {
         });
 
         if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`Gemini API Error: ${error}`);
+            const errorText = await response.text();
+            console.error("Gemini API Error Detail:", errorText);
+
+            try {
+                const errorJson = JSON.parse(errorText);
+                return res.status(response.status).json(errorJson);
+            } catch (e) {
+                return res.status(response.status).json({ error: errorText });
+            }
         }
 
         const data = await response.json();

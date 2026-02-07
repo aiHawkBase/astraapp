@@ -6,7 +6,7 @@ Sistemi çok daha kolay kurulabilir hale getirdik. Artık backend klasörüyle u
     Terminalden şu komutları gir:
     ```bash
     git add .
-    git commit -m "Security Hardening: Removed visible API Key"
+    git commit -m "Debug: Added detailed logs for API error"
     git push -u origin main
     ```
 
@@ -17,7 +17,7 @@ Sistemi çok daha kolay kurulabilir hale getirdik. Artık backend klasörüyle u
 
 3.  **Environment Variables (Unutma!):**
     *   Key: `GEMINI_API_KEY`
-    *   Value: `AIzaSyB...` (Senin kodun)
+    *   Value: `AIzaSy...` (Senin kodun)
 
 4.  **Bitti!**
     *   Verilen linke tıkladığında hem site açılacak hem de arka planda API çalışacak.

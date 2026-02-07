@@ -93,9 +93,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
+                // --- DEBUG LOGGING ADDED FOR USER ---
+                console.log("🔵 ASTRA API HAM YANIT:", data); // Tüm yanıtı gör
+
+                if (data.error) {
+                    console.error("🔴 API İÇİ HATA:", data.error);
+                    throw new Error(`API Servis Hatası: ${data.error.message || JSON.stringify(data.error)}`);
+                }
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].finishReason !== "STOP") {
+                    console.warn("⚠️ OLUŞTURMA DURDU. SEBEP:", data.candidates[0].finishReason);
+                }
+                // ------------------------------------
+
                 // 3. Yanıtı İşleme
                 if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                    throw new Error("API yanıt formatı geçersiz");
+                    console.error("❌ BEKLENEN FORMAT BULUNAMADI. Gelen Veri:", JSON.stringify(data, null, 2));
+                    throw new Error("API yanıt formatı geçersiz (Console'a bakınız)");
                 }
 
                 let rawText = data.candidates[0].content.parts[0].text;
@@ -391,14 +405,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const payBtn = forms.payment.querySelector('button');
         const defaultBtnText = payBtn.innerHTML;
 
-        payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Onaylanıyor ve Analiz Başlıyor...';
+        payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Kozmik Bağlantı Kuruluyor...';
         payBtn.disabled = true;
 
-        Mascot.say("Ödeme başarılı! Şimdi senin için yıldızların kapısını aralıyorum...", 3000);
+        Mascot.say("Ödeme onaylandı! Yıldız haritanın kilidini açıyorum...", 3000);
 
         try {
-            // 1. GERÇEK API ÇAĞRISI (Artık burada yapılıyor)
-            const result = await AstraAPI.generateReading(user);
+            // 1. GERÇEK API ÇAĞRISI (Paralel Başlat)
+            const apiPromise = AstraAPI.generateReading(user);
+
+            // 2. Yapay Bekleme & Mesajlar (Premium His) - 8 Saniye
+            const stepsMessages = [
+                "Gezegen konumları hesaplanıyor...",
+                "Doğum haritanın derinliklerine iniliyor...",
+                "Karmik düğümler çözümleniyor...",
+                "Ruh eşinle olan enerjin taranıyor...",
+                "Neredeyse hazır..."
+            ];
+
+            for (let i = 0; i < stepsMessages.length; i++) {
+                setTimeout(() => {
+                    Mascot.say(stepsMessages[i], 1500);
+                }, i * 1600);
+            }
+
+            // En az 8 saniye bekle
+            await new Promise(resolve => setTimeout(resolve, 8000));
+
+            const result = await apiPromise;
 
             // 2. Sonucu Kaydet
             if (result) {
