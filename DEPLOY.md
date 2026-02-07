@@ -6,7 +6,7 @@ Sistemi çok daha kolay kurulabilir hale getirdik. Artık backend klasörüyle u
     Terminalden şu komutları gir:
     ```bash
     git add .
-    git commit -m "Fix: Gemini Image API Config & CSS Center Alignment"
+    git commit -m "Fix: Update Gemini Image Model to v2.0-flash"
     git push -u origin main
     ```
 

@@ -77,14 +77,16 @@ app.post('/api/generate-image', async (req, res) => {
         }
 
         // Gemini Image Generation Model
-        // "gemini-2.0-flash-exp" supports image generation via generateContent
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        // Using 'gemini-2.0-flash' which supports multimodal generation
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                // generationConfig kaldırıldı çünkü 'image/jpeg' mimetype hatası veriyor.
-                // Model otomatik olarak image döndürecektir veya text içinde link/base64 verecektir.
+                generationConfig: {
+                    responseModalities: ["IMAGE"]
+                    // Note: If this fails, app.js will fallback to Pollinations.
+                }
             })
         });
 
