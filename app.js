@@ -33,61 +33,59 @@ document.addEventListener('DOMContentLoaded', () => {
             const birthCity = userProfile.city || "Bilinmiyor";
             const sunSign = userProfile.sign || "Bilinmiyor";
 
-            // 50 SAYFA EŞDEĞERİ PROMPT
+            // 1. Prompt Hazırlığı (ZENGİNLEŞTİRİLMİŞ İÇERİK - 100 Sayfa Eşdeğeri)
             const prompt = `
-                Sen evrenin sırlarına vakıf, kadim bilgeliklerle donanmış, mistik ve derin bir astroloji uzmanısın. 
-                Görevin, aşağıda bilgileri verilen kişi için "Hayat Kitabı" niteliğinde, yaklaşık 50 sayfa uzunluğunda (yaklaşık 8.000 - 10.000 kelime), 
-                son derece detaylı, felsefi, psikolojik ve spiritüel derinliği olan bir astroloji raporu hazırlamaktır.
+            Sen evrenin sırlarına vakıf, kadim bilgeliklerle donanmış, Dünya'nın öncü astrologususun. 
+            Görevin, aşağıda bilgileri verilen kişi için "Hayat Kitabı" niteliğinde, yaklaşık 100 sayfa uzunluğunda bir kitap derinliğinde (yaklaşık 15.000 kelime), 
+            son derece detaylı, felsefi, psikolojik ve spiritüel derinliği olan, eşsiz bir astroloji raporu hazırlamaktır.
 
-                **Kullanıcı Bilgileri:**
-                - İsim: ${name}
-                - Doğum Tarihi: ${birthDate}
-                - Doğum Saati: ${birthTime}
-                - Doğum Yeri: ${birthCity}
-                - Burç: ${sunSign}
+            **Kullanıcı Bilgileri:**
+            - İsim: ${name}
+            - Doğum Tarihi: ${birthDate}
+            - Doğum Saati: ${birthTime}
+            - Doğum Yeri: ${birthCity}
+            - Burç: ${sunSign}
 
-                **RAPOR YAZIM KURALLARI (ÇOK ÖNEMLİ):**
-                1. **UZUNLUK VE DERİNLİK:** Her bölüm EN AZ 800-1000 kelime olmalıdır. Yüzeysel geçiştirmelerden kaçın. Konuları tarihten, mitolojiden ve psikolojiden örneklerle derinleştir.
-                2. **ÜSLUP:** Mistik, akıcı, etkileyici, yer yer şiirsel ama aynı zamanda somut hayat tavsiyeleri içeren bir dil kullan. Okuyucuyu büyüle.
-                3. **FORMAT:** Yanıtın SADECE aşağıda belirtilen JSON formatında olmalıdır. Markdown blokları ('''json) kullanma.
-                
-                **İSTENEN JSON FORMATI VE BÖLÜM İÇERİKLERİ:**
-                {
-                    "user_profile": {
-                         "sun_sign": "Güneş Burcu (Örnek: Koç - Öncü Ateş)",
-                         "rising_sign": "Yükselen Burcu (Tahmini ve detayı)",
-                         "moon_sign": "Ay Burcu (Tahmini ve duygusal analizi)",
-                         "life_path_number": "Hayat Yolu Sayısı",
-                         "spirit_animal": "Ruh Hayvanı"
-                    },
-                    "short_readings": {
-                         "hook_1": "Kısa vurucu cümle",
-                         "current_vibe": "Mevcut ruh hali",
-                         "mystery_alert": "Gizemli uyarı"
-                    },
-                    "full_report": {
-                        "intro": "Kullanıcıya ismen hitap eden, yaklaşık 500 kelimelik, ruhsal potansiyelini öven ve bu raporun onun hayatındaki önemini anlatan mistik bir giriş yazısı.",
-                        "chapter_1_identity": "GÜNEŞ BURCU VE KİMLİK: Kişinin egosu, yaşam amacı, babasıyla ilişkisi, parladığı alanlar, gölge yönleri, mitolojik karşılığı ve bu hayatta öğrenmesi gereken temel dersler. (En az 1000 kelime)",
-                        "chapter_2_mask": "YÜKSELEN BURCU VE SOSYAL MASKE: Kişinin dış dünyaya gösterdiği yüz, fiziksel özellikleri, ilk izlenimi, insanlarla etkileşimi, hayatının gidişatı ve başkalarının onu nasıl algıladığı. (En az 800 kelime)",
-                        "chapter_3_emotion": "AY BURCU VE DUYGUSAL DÜNYA: Kişinin bilinçaltı, annesiyle ilişkisi, duygusal ihtiyaçları, korkuları, güvende hissetme yolları, çocukluğu ve ruhsal kökleri. Ruh hayvanının sembolizmiyle bağlantı kur. (En az 1000 kelime)",
-                        "chapter_4_love": "AŞK, İLİŞKİLER VE CİNSELLİK: Venüs ve Mars etkileri, kişinin aşk dili, ideal partneri, ilişkilerde yaptığı hatalar, cinsel enerjisi, çekiciliği ve evlilik potansiyeli. (En az 1000 kelime)",
-                        "chapter_5_karma": "KARMA, SATÜRN VE ÖNCEKİ YAŞAMLAR: Kişinin bu hayata getirdiği karmik borçlar, Satürn'ün sınavları, yaşamındaki en büyük zorluklar, korkuları ve bunları nasıl aşarak ustalığa dönüşeceği. Güney Ay Düğümü bağlantıları. (En az 1000 kelime)",
-                        "chapter_6_career": "KARİYER, FİNANS VE BAŞARI: Kişinin mesleki yetenekleri, para kazanma potansiyeli, yönetici mi yoksa yaratıcı mı olduğu, finansal şansı ve ideal kariyer yolları. Jüpiter şansı. (En az 800 kelime)",
-                        "chapter_7_numerology": "NUMEROLOJİ VE KADER SAYISI: Hayat Yolu Numarasının derin analizi. Bu sayının titreşimi, yaşam amacı, güçlü ve zayıf yönleri, meslek ve ilişki uyumları. (En az 600 kelime)",
-                        "chapter_8_forecast_q1": "GELECEK PROJEKSİYONU (İLK 3 AY): Önümüzdeki 3 ayın (Ay ay detaylandırarak) astrolojik etkileri, fırsatlar, riskler ve tavsiyeler. (En az 600 kelime)",
-                        "chapter_9_forecast_q2": "GELECEK PROJEKSİYONU (SONRAKİ 3 AY): Sonraki 3 ayın (Ay ay detaylandırarak) genel atmosferi, önemli tarihleri ve stratejik öneriler. (En az 600 kelime)",
-                        "chapter_10_ritual": "KİŞİSEL GÜÇ RİTÜELİ: Kişinin enerjisini dengelemesi, blokajlarını kaldırması ve dileklerine ulaşması için ona özel tasarlanmış; malzemeleri, uygulama zamanı ve adımları detaylıca anlatılan, uygulanabilir bir ritüel. (En az 500 kelime)"
-                    },
-                    "image_prompts": [
-                        "Kullanıcının burcunu ve elementini simgeleyen, altın detaylı, mistik tarot kartı (Cover)",
-                        "Kullanıcının ruh hayvanını temsil eden spiritüel sanat eseri (Spirit)",
-                        "Kullanıcının aşk hayatını simgeleyen iki gezegenin dansı, romantik ve kozmik (Love)",
-                        "Kullanıcının kariyer yolunu aydınlatan altın bir kapı ve merdivenler (Career)",
-                        "Kullanıcının karmasını temsil eden antik bir kum saati ve yıldızlar (Karma)"
-                    ]
-                }
-
-                Sadece saf JSON döndür, başka hiçbir metin ekleme.
+            **RAPOR YAZIM KURALLARI (ÇOK ÖNEMLİ - MAKSİMUM DERİNLİK):**
+            1. **UZUNLUK VE DERİNLİK:** Her bölüm EN AZ 1500 kelime olmalıdır. Yüzeysel cümlelerden kaçın. Her konuyu derinlemesine analiz et.
+            2. **ÜSLUP:** Mistik, akıcı, etkileyici, epik bir dil kullan. Okuyucuyu büyüle. Metaforlar, mitolojik hikayeler ve psikolojik analizlerle zenginleştir.
+            3. **FORMAT:** Yanıtın SADECE aşağıda belirtilen JSON formatında olmalıdır. Markdown blokları ('''json) kullanma.
+            
+            **İSTENEN JSON FORMATI VE BÖLÜM İÇERİKLERİ:**
+            {
+                "user_profile": {
+                     "sun_sign": "Güneş Burcu (Örnek: Koç - Öncü Ateş)",
+                     "rising_sign": "Yükselen Burcu (Tahmini)",
+                     "moon_sign": "Ay Burcu (Tahmini)",
+                     "life_path_number": "Hayat Yolu Sayısı",
+                     "spirit_animal": "Ruh Hayvanı"
+                },
+                "short_readings": {
+                     "hook_1": "Kısa, vurucu ve gizemli bir cümle.",
+                     "current_vibe": "Mevcut kozmik enerjinin kullanıcı üzerindeki etkisi.",
+                     "mystery_alert": "Yaklaşan büyük bir değişimin habercisi."
+                },
+                "full_report": {
+                    "intro": "Kullanıcıya özel yazılmış, en az 1000 kelimelik, ruhsal potansiyelini ve bu raporun önemini anlatan destansı bir giriş.",
+                    "chapter_1_identity": "GÜNEŞ BURCU VE KOZMİK KİMLİK: (En az 1500 kelime) Kişinin özü, yaşam amacı, babasıyla ilişkisi, parladığı alanlar, gölge yönleri ve mitolojik arketipleri.",
+                    "chapter_2_mask": "YÜKSELEN BURCU VE SOSYAL MASKE: (En az 1500 kelime) Dış dünyaya gösterdiği yüz, fiziksel özellikleri, ilk izlenimi, çocukluk travmaları ve başkalarının onu nasıl algıladığı.",
+                    "chapter_3_emotion": "AY BURCU VE DUYGUSAL DÜNYA: (En az 1500 kelime) Bilinçaltı, annesiyle ilişkisi, duygusal ihtiyaçları, korkuları, güvende hissetme yolları ve ruhsal kökleri.",
+                    "chapter_4_love": "AŞK, İLİŞKİLER VE CİNSELLİK: (En az 1500 kelime) Venüs ve Mars analizi, aşk dili, ideal partneri, ilişkilerde yaptığı hatalar, cinsel enerjisi ve karmik eşleşmeleri.",
+                    "chapter_5_karma": "SATÜRN, KARMA VE ÖNCEKİ YAŞAMLAR: (En az 1500 kelime) Karmik borçlar, yaşam sınavları, korkuları ve ruhsal büyüme planı.",
+                    "chapter_6_career": "KARİYER, FİNANS VE BAŞARI: (En az 1500 kelime) Mesleki yetenekleri, zenginlik potansiyeli, finansal şansı ve ideal kariyer yolu.",
+                    "chapter_7_numerology": "NUMEROLOJİ VE KADER SAYISI: (En az 1000 kelime) Hayat Yolu Numarasının derin analizi ve yaşam misyonu.",
+                    "chapter_8_forecast_q1": "GELECEK PROJEKSİYONU (İLK 3 AY): (En az 1000 kelime) Önümüzdeki 3 ay için ay ay detaylı öngörüler.",
+                    "chapter_9_forecast_q2": "GELECEK PROJEKSİYONU (SONRAKİ 3 AY): (En az 1000 kelime) Sonraki 3 ay için ay ay detaylı öngörüler.",
+                    "chapter_10_ritual": "KİŞİSEL GÜÇ RİTÜELİ: (En az 800 kelime) Kullanıcıya özel, uygulanabilir ve dönüştürücü bir ritüel."
+                },
+                "image_prompts": [
+                    "Kullanıcının burcunu simgeleyen, altın detaylı, mistik tarot kartı, 8k, masterpiece (Cover)",
+                    "Spiritüel sembolizm içeren soyut sanat eseri (Spirit)",
+                    "Romantik ve kozmik bir atmosferde iki gezegenin dansı (Love)",
+                    "Altın kapılar ve merdivenlerle dolu başarı yolu (Career)",
+                    "Antik kum saati ve yıldızlar, mistik atmosfer (Karma)"
+                ]
+            }
             `;
 
             try {
