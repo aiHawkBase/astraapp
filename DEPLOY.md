@@ -6,7 +6,7 @@ Sistemi çok daha kolay kurulabilir hale getirdik. Artık backend klasörüyle u
     Terminalden şu komutları gir:
     ```bash
     git add .
-    git commit -m "Upgrade to Gemini 3 Pro Preview"
+    git commit -m "Security Hardening: Removed visible API Key"
     git push -u origin main
     ```
 

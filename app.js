@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ASTRA API SERVICE (MOCK / READY FOR GEMINI) ---
     const AstraAPI = {
-        // GERÇEK API KEY BURAYA GELECEK
-        GEMINI_API_KEY: "AIzaSyB80rxZmoMoovwxK2jX_dD52_Hyp6EnuGQ",
+        // API Key artık sistemde (Backend) kayıtlıdır. Frontend'de saklanmaz.
 
         async generateReading(userProfile) {
             console.log("Gemini API'ye bağlanılıyor...", userProfile);
@@ -95,31 +94,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 // 3. Yanıtı İşleme
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error("API yanıt formatı geçersiz");
+                }
+
                 let rawText = data.candidates[0].content.parts[0].text;
 
                 // Markdown temizliği (```json ... ``` kısımlarını kaldır)
-                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const jsonStart = rawText.indexOf('{');
+                const jsonEnd = rawText.lastIndexOf('}');
 
-                const parsedResult = JSON.parse(rawText);
-                return parsedResult;
+                if (jsonStart !== -1 && jsonEnd !== -1) {
+                    rawText = rawText.substring(jsonStart, jsonEnd + 1);
+                }
+
+                try {
+                    const parsedResult = JSON.parse(rawText);
+                    return parsedResult;
+                } catch (parseError) {
+                    console.error("JSON Parse Hatası:", parseError);
+                    console.log("Hatalı Veri:", rawText);
+                    throw new Error("AI yanıtı okunamadı");
+                }
 
             } catch (error) {
                 console.error("Gemini API Hatası:", error);
-                // Hata durumunda fallback (yedek) veri dön
+
+                // FALLBACK DATA (API Çalışmazsa Kullanıcıyı Mağdur Etme)
                 return {
-                    user_profile: { sun_sign: userProfile.sign, rising_sign: "Bilinmiyor", life_path_number: 0 },
+                    user_profile: {
+                        sun_sign: userProfile.sign,
+                        rising_sign: "Hesaplanıyor...",
+                        moon_sign: "Hesaplanıyor...",
+                        life_path_number: 1,
+                        spirit_animal: "Anka Kuşu"
+                    },
                     short_readings: {
-                        hook_1: "Yıldızlar şu an çok yoğun, enerjinizi hissedebiliyorum ama kelimelere dökerken bir engel var.",
-                        current_vibe: "Karışık sinyaller alıyorsun.",
-                        mystery_alert: "Yakında her şey netleşecek."
+                        hook_1: "Evrenin enerjisi şu an çok yoğun, detaylar netleşiyor.",
+                        current_vibe: "Geçiş dönemi sancılı olabilir.",
+                        mystery_alert: "Büyük bir fırsat kapıda."
                     },
                     full_report: {
-                        chapter_1_identity: "Sistemsel bir yoğunluk nedeniyle detaylı analize şu an ulaşılamıyor.",
-                        chapter_2_love: "Lütfen daha sonra tekrar deneyiniz.",
-                        chapter_3_career: "...",
-                        chapter_4_forecast: { month_1: "...", month_2: "...", month_3: "..." }
+                        intro: "Yıldızlar bazen sislerin ardına gizlenir... Ancak senin ışığın hala parlıyor.",
+                        chapter_1_identity: "Güneş burcun senin özünü temsil eder. Sen güçlü bir karaktere sahipsin.",
+                        chapter_2_mask: "Yükselen burcun, dünyaya taktığın maskeyi gösterir.",
+                        chapter_3_emotion: "Ay burcun, duygusal derinliğini yansıtır.",
+                        chapter_4_love: "Aşk hayatında tutku ve sadakat arıyorsun.",
+                        chapter_5_karma: "Geçmişten getirdiğin yüklerden arınma vakti.",
+                        chapter_6_career: "Yeteneklerini doğru kullanırsan başarı kaçınılmaz.",
+                        chapter_7_numerology: "Hayat Yolu Sayın sana rehberlik edecek.",
+                        chapter_8_forecast_q1: "Önümüzdeki 3 ay planlama zamanı.",
+                        chapter_9_forecast_q2: "Sonraki 3 ay hasat zamanı.",
+                        chapter_10_ritual: "Her sabah 5 dakika meditasyon yap."
                     },
-                    image_prompts: ["Zodiac sign abstract art"]
+                    image_prompts: ["mystical zodiac art", "tarot card justice", "cosmic love", "golden career ladder", "karma wheel"]
                 };
             }
         },
@@ -280,48 +308,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- STEP 2: Advanced Info & API CALL ---
-    forms.advanced.addEventListener('submit', async (e) => {
+    // --- STEP 2: Advanced Info & PRE-API TEASER ---
+    forms.advanced.addEventListener('submit', (e) => {
         e.preventDefault();
         user.city = citySelect.value;
         user.district = districtSelect.value;
         user.birthTime = document.getElementById('birthTime').value;
 
-        // Loading Screen
+        // Loading Screen (Kısa süreli, lokal veri işleniyor gibi)
         const btn = document.getElementById('btn-finalize');
         const loader = document.getElementById('analysisLoader');
-        const loadingText = document.getElementById('loadingText');
         const progress = document.querySelector('.progress');
 
         btn.style.display = 'none';
         loader.classList.remove('hidden');
 
-        // Progress Animation
+        // Fake Progress
         let width = 0;
         const progressInterval = setInterval(() => {
-            if (width < 90) { width += 0.5; progress.style.width = width + '%'; }
-        }, 50);
+            if (width < 100) { width += 2; progress.style.width = width + '%'; }
+        }, 20);
 
-        Mascot.say("Büyük veri tabanıma bağlanıyorum... Gemini AI analiz yapıyor...", 6000);
+        Mascot.say("Doğum haritanın element dengesine bakıyorum...", 2000);
 
-        // API CALL START
-        try {
-            const result = await AstraAPI.generateReading(user); // FETCHING MOCK DATA
-            user.apiResult = result; // Save data for report
-
-            // Finish Loading
+        // API ÇAĞRISI YOK - Sadece Local Data ile Teaser Hazırla
+        setTimeout(() => {
             clearInterval(progressInterval);
             progress.style.width = '100%';
 
-            setTimeout(() => {
-                prepareTeaser2(result);
-                switchStep(steps.s2, steps.t2);
-                Mascot.say("Sonuçlar geldi... Gördüklerime inanamıyorum!");
-            }, 800);
+            // Local Data'dan Rastgele Teaser Seç
+            const mystery = getRandom(astroData.mysteryHook);
 
-        } catch (error) {
-            console.error(error);
-            alert("Bağlantı hatası!");
-        }
+            // Teaser 2 İçeriğini Doldur
+            document.getElementById('locationHookText').innerHTML =
+                `<strong>${user.city}</strong> koordinatları, kader ağında kritik bir düğüm noktası.`;
+
+            document.getElementById('finalCallText').innerText =
+                `Yıldızlar senin için "${mystery}" diyor. Bu bilgiye ulaşmak üzeresin.`;
+
+            switchStep(steps.s2, steps.t2);
+            Mascot.say("İnanılmaz... Çok nadir bir dizilim görüyorum!");
+        }, 1500);
     });
 
     function prepareTeaser2(data) {
@@ -358,20 +385,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    forms.payment.addEventListener('submit', (e) => {
+    // --- PAYMENT SUCCESS & REAL API CALL ---
+    forms.payment.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payBtn = forms.payment.querySelector('button');
+        const defaultBtnText = payBtn.innerHTML;
 
-        payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Onaylanıyor...';
+        payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Onaylanıyor ve Analiz Başlıyor...';
         payBtn.disabled = true;
 
-        setTimeout(() => {
-            switchStep(steps.pay, steps.succ);
-            Mascot.say("Tebrikler! Yolculuğun asıl şimdi başlıyor.");
+        Mascot.say("Ödeme başarılı! Şimdi senin için yıldızların kapısını aralıyorum...", 3000);
 
-            // Arka planda raporu render (hazır olan datadan)
-            renderFullReport();
-        }, 2000);
+        try {
+            // 1. GERÇEK API ÇAĞRISI (Artık burada yapılıyor)
+            const result = await AstraAPI.generateReading(user);
+
+            // 2. Sonucu Kaydet
+            if (result) {
+                user.apiResult = result;
+
+                // 3. Raporu Render Et (Arka planda)
+                await renderFullReport();
+
+                // 4. Başarılı sayfasına geç
+                switchStep(steps.pay, steps.succ);
+                Mascot.say("Tebrikler! Kozmik raporun hazır. Hayatını değiştirecek bilgiler seni bekliyor.");
+            } else {
+                throw new Error("API boş yanıt döndü");
+            }
+
+        } catch (error) {
+            console.error("Kritik Hata:", error);
+            payBtn.innerHTML = defaultBtnText;
+            payBtn.disabled = false;
+            Mascot.say("Üzgünüm, kozmik bağlantıda bir sorun oluştu. Lütfen tekrar dene.", 5000);
+            alert("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+        }
     });
 
     document.getElementById('btn-view-report').addEventListener('click', () => {
