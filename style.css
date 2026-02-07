@@ -24,17 +24,21 @@
 
 body {
     font-family: var(--font-body);
-    background: radial-gradient(circle at 50% 10%, #fff, #dfe6e9);
+    /* Modern Gradient Background */
+    background: radial-gradient(circle at 50% 10%, #ffffff, #dfe6e9);
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(74, 105, 189, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(246, 185, 59, 0.05) 0%, transparent 20%);
     color: var(--text-main);
     min-height: 100vh;
-    /* height yerine min-height */
-    overflow-x: hidden;
+    width: 100vw;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    position: relative;
-    padding: 20px 0;
-    /* Mobilde taşmaları önlemek için dikey padding */
+    justify-content: center;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
 }
 
 /* Container */

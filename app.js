@@ -597,19 +597,61 @@ document.addEventListener('DOMContentLoaded', () => {
     async function updateImage(elementId, prompt) {
         const el = document.getElementById(elementId);
         if (!el) return;
+
+        // Spinning Icon + Message update
+        el.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-paintbrush fa-spin"></i> Özel çizim yapılıyor...</div>`;
+
         try {
             console.log(`Görsel isteniyor (${elementId}):`, prompt);
 
-            // Kullanıcının istediği 'pro' modelin simulate edilmesi
-            const url = await AstraAPI.generateImage(prompt);
+            let imageUrl = null;
 
-            el.innerHTML = ''; // Loading spinner'ı temizle
-            el.style.backgroundImage = `url('${url}')`;
+            // 1. Önce Gemini Image Gen (Server üzerinden) Dene
+            try {
+                // Pollinations yerine önce kendi API'mızı deniyoruz
+                const res = await fetch('/api/generate-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.imageUrl) {
+                        imageUrl = data.imageUrl; // Base64 data:image/... döndürecek
+                        console.log("Gemini Image Kullanıldı");
+                    }
+                }
+            } catch (err) {
+                console.warn("Gemini Image Failed, falling back to Pollinations...", err);
+            }
+
+            // 2. Fallback: Pollinations.ai
+            if (!imageUrl) {
+                // Pollinations için "Pro" seviyesinde detaylı prompt zenginleştirme
+                const refinedPrompt = `${prompt}, mystical tarot card style, cinematic lighting, 8k resolution, highly detailed, gold accents, ethereal atmosphere, digital art, masterpiece`;
+                const encodedPrompt = encodeURIComponent(refinedPrompt);
+                const seed = Math.floor(Math.random() * 99999);
+                imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=800&height=1024&seed=${seed}&model=flux`;
+            }
+
+            // Görseli Bas (Önce yüklenmesini bekle)
+            const img = new Image();
+            img.src = imageUrl;
+
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = resolve; // Hata olsa bile devam et
+            });
+
+            el.innerHTML = '';
+            el.style.backgroundImage = `url('${imageUrl}')`;
             el.style.backgroundSize = 'cover';
             el.style.backgroundPosition = 'center';
-            el.style.height = '400px'; // Yükseklik ver
+            el.style.height = '500px';
             el.style.borderRadius = '15px';
-            el.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+            el.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)';
+            el.style.transition = "all 0.5s ease";
 
         } catch (e) {
             console.error("Resim yüklenemedi", e);

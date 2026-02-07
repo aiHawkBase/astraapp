@@ -68,6 +68,51 @@ app.post('/api/generate-reading', async (req, res) => {
 });
 
 // Start Server
+// --- GEMINI IMAGE GENERATION ENDPOINT ---
+app.post('/api/generate-image', async (req, res) => {
+    try {
+        const { prompt } = req.body;
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({ error: "API Key not configured" });
+        }
+
+        // Gemini Image Generation Model (Preview)
+        // Not: Bu model her hesapta aktif olmayabilir, hata alirsa fallback (Pollinations) kullanmasi gerekecek frontend'de.
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "image/jpeg"
+                }
+            })
+        });
+
+        if (!response.ok) {
+            // Eğer Gemini Image çalışmazsa (404/403), frontend'e hata dön, frontend Pollinations'a düşsün.
+            const err = await response.text();
+            console.error("Gemini Image API Error:", err);
+            return res.status(response.status).json({ error: "Gemini Image API Failed", details: err });
+        }
+
+        const data = await response.json();
+
+        // Gemini Image Response Structure (Base64)
+        if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+            const base64Image = data.candidates[0].content.parts[0].inlineData.data;
+            const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType;
+            return res.json({ imageUrl: `data:${mimeType};base64,${base64Image}` });
+        } else {
+            return res.status(500).json({ error: "No image data in response" });
+        }
+
+    } catch (error) {
+        console.error('Image Gen Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
