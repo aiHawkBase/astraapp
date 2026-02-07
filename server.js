@@ -28,8 +28,8 @@ app.post('/api/generate-reading', async (req, res) => {
             return res.status(500).json({ error: "API Key not configured" });
         }
 
-        // Use Gemini 1.5 Pro for better reasoning and deeper astrological analysis
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        // Use Gemini 3 Pro Preview (Latest available model as of Feb 2026)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
