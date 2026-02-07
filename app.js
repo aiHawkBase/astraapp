@@ -76,68 +76,57 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             `;
 
-            // 2. API İsteği
+            // 2. API İsteği (Artık Kuyruk Sistemi - Job Queue)
             try {
-                // Backend artık aynı domain üzerinde çalışıyor, relative path kullanıyoruz.
-                const response = await fetch('/api/generate-reading', {
+                // V2: Önce Job ID al
+                console.log("Job Talebi Gönderiliyor...");
+                const initRes = await fetch('/api/generate-reading', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API Hatası: ${response.status}`);
+                if (!initRes.ok) throw new Error(`API Başlatma Hatası: ${initRes.status}`);
+
+                const initData = await initRes.json();
+                const jobId = initData.jobId;
+
+                if (!jobId) {
+                    // Fallback (Eski usül ani yanıt döndüyse)
+                    if (initData.full_report) return initData;
+                    throw new Error("Job ID alınamadı.");
                 }
 
-                const data = await response.json();
+                console.log(`Job Başlatıldı: ${jobId}. Bekleniyor...`);
 
-                // --- DEBUG LOGGING ADDED FOR USER ---
-                console.log("🔵 ASTRA API HAM YANIT:", data); // Tüm yanıtı gör
+                // 3. Polling (Durum Sorgulama)
+                let pollResult = null;
+                let attempts = 0;
+                const MAX_ATTEMPTS = 60; // 2 dk timeout (2s x 60)
 
-                // FIX: Eğer data zaten parse edilmiş geldiyse (server.js yapıyor), direkt kullan.
-                if (data.user_profile && data.full_report) {
-                    return data;
+                while (!pollResult && attempts < MAX_ATTEMPTS) {
+                    attempts++;
+                    await new Promise(r => setTimeout(r, 2000)); // 2 saniye bekle
+
+                    const pollRes = await fetch(`/api/jobs/${jobId}`);
+                    if (pollRes.ok) {
+                        const pollData = await pollRes.json();
+                        console.log(`Job Durumu (${jobId}):`, pollData.status);
+
+                        if (pollData.status === 'completed') {
+                            pollResult = pollData.data; // Sonuç hazır!
+                        } else if (pollData.status === 'failed') {
+                            throw new Error(pollData.error || "Analiz başarısız oldu.");
+                        }
+                    }
                 }
 
-                if (data.error) {
-                    console.error("🔴 API İÇİ HATA:", data.error);
-                    throw new Error(`API Servis Hatası: ${data.error.message || JSON.stringify(data.error)}`);
-                }
+                if (!pollResult) throw new Error("Zaman aşımı! Analiz çok uzun sürdü.");
 
-                if (data.candidates && data.candidates[0] && data.candidates[0].finishReason !== "STOP") {
-                    console.warn("⚠️ OLUŞTURMA DURDU. SEBEP:", data.candidates[0].finishReason);
-                }
-                // ------------------------------------
-
-                // 3. Yanıtı İşleme
-                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                    console.error("❌ BEKLENEN FORMAT BULUNAMADI. Gelen Veri:", JSON.stringify(data, null, 2));
-                    throw new Error("API yanıt formatı geçersiz (Console'a bakınız)");
-                }
-
-                let rawText = data.candidates[0].content.parts[0].text;
-
-                // Markdown temizliği (```json ... ``` kısımlarını kaldır)
-                const jsonStart = rawText.indexOf('{');
-                const jsonEnd = rawText.lastIndexOf('}');
-
-                if (jsonStart !== -1 && jsonEnd !== -1) {
-                    rawText = rawText.substring(jsonStart, jsonEnd + 1);
-                }
-
-                try {
-                    const parsedResult = JSON.parse(rawText);
-                    return parsedResult;
-                } catch (parseError) {
-                    console.error("JSON Parse Hatası:", parseError);
-                    console.log("Hatalı Veri:", rawText);
-                    throw new Error("AI yanıtı okunamadı");
-                }
+                return pollResult; // Tamamlanan veri
 
             } catch (error) {
-                console.error("Gemini API Hatası:", error);
+                console.error("Gemini API (Queue) Hatası:", error);
 
                 // FALLBACK DATA (API Çalışmazsa Kullanıcıyı Mağdur Etme)
                 return {
