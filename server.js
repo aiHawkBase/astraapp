@@ -7,7 +7,19 @@ require('dotenv').config();
 const { db, initDb } = require('./database');
 
 // Initialize Database
+// Initialize Database
 initDb();
+
+// Ensure Default User (ID 0) Exists for Anonymous Readings
+try {
+    const defaultUser = db.prepare("SELECT id FROM users WHERE id = 0").get();
+    if (!defaultUser) {
+        console.log("Creating default anonymous user (ID 0)...");
+        db.prepare("INSERT INTO users (id, name, email) VALUES (0, 'Anonymous', 'anon@astra.app')").run();
+    }
+} catch (error) {
+    console.error("Error creating default user:", error);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -135,21 +147,21 @@ app.post('/api/generate-image', async (req, res) => {
         }
 
         // Gemini Image Generation Model
-        // Using 'gemini-2.0-flash' which supports multimodal generation
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        // Gemini Image Generation Model
+        // Using 'gemini-2.0-flash-exp' which supports multimodal generation
+        // or falling back to Pollinations if it fails.
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
+                contents: [{ parts: [{ text: "Generate an image: " + prompt }] }],
                 generationConfig: {
-                    responseModalities: ["IMAGE"]
-                    // Note: If this fails, app.js will fallback to Pollinations.
+                    // responseModalities: ["IMAGE"] // Removing strict modality to allow fallback/flexibility
                 }
             })
         });
 
         if (!response.ok) {
-            // Log error but return 200 with null to trigger frontend fallback cleanly
             const err = await response.text();
             console.warn("Gemini Image API Failed (Falling back to Pollinations):", err);
             return res.json({ imageUrl: null, error: "Gemini API Error" });
@@ -157,24 +169,23 @@ app.post('/api/generate-image', async (req, res) => {
 
         const data = await response.json();
 
-        // Gemini Image Response Structure (Base64)
-        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].inlineData) {
-            const base64Image = data.candidates[0].content.parts[0].inlineData.data;
-            const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType;
-            return res.json({ imageUrl: `data:${mimeType};base64,${base64Image}` });
-        } else {
-            console.warn("No image data in Gemini response");
-            return res.json({ imageUrl: null });
+        // Check for image data in various potential formats
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+            for (const part of data.candidates[0].content.parts) {
+                if (part.inlineData && part.inlineData.mimeType.startsWith('image')) {
+                    return res.json({ imageUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` });
+                }
+            }
         }
+
+        console.warn("No image data in Gemini response");
+        return res.json({ imageUrl: null });
 
     } catch (error) {
         console.error('Image Gen Error:', error);
-        // Return 200 with null to fallback
         res.json({ imageUrl: null, error: error.message });
     }
 });
-
-// --- ADMIN ROUTES ---
 
 // --- ADMIN ROUTES ---
 
