@@ -47,137 +47,159 @@ body {
     /* Fixed yerine relative, içerik uzadıkça scroll olsun */
 }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
+/* --- MODERN UI VARIABLES --- */
+:root {
+    /* Colors */
+    --bg-dark: #f8f9fa;
+    /* Clean White/Grey Background */
+    --bg-panel: #ffffff;
+    --primary: #4a69bd;
+    /* Trustworthy Blue */
+    --primary-dark: #1e3799;
+    --gold: #f6b93b;
+    /* Premium Gold */
+    --text-main: #2f3640;
+    /* High Contrast Dark Grey */
+    --text-muted: #718093;
+    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 15px 35px rgba(74, 105, 189, 0.2);
+
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
 }
 
-.logo {
-    font-family: var(--font-heading);
-    font-size: 2.5rem;
-    color: var(--gold);
-    text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-    letter-spacing: 2px;
+/* --- GLOBAL RESET & TYPOGRAPHY --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-.tagline {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    margin-top: 5px;
+body {
+    font-family: var(--font-body);
+    background: var(--bg-dark);
+    /* Radial gradient removed for cleaner look */
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    /* Absolute Vertical Centering */
+    justify-content: center;
+    /* Absolute Horizontal Centering */
+    padding: 20px;
+    overflow-x: hidden;
 }
 
-/* Cards */
+.container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+/* --- CARD STYLES (High Contrast) --- */
 .card {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 20px;
+    background: var(--bg-panel);
+    border-radius: 24px;
     padding: 40px 30px;
     box-shadow: var(--shadow-soft);
     text-align: center;
-    transition: all 0.5s ease;
-    opacity: 0;
-    transform: translateY(20px);
-    display: none;
-    /* JS ile yönetilecek */
-    margin-bottom: 20px;
-    color: var(--text-main);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card.active {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
 }
 
-.card h2 {
+h1,
+h2,
+h3 {
     font-family: var(--font-heading);
-    color: var(--primary);
+    color: var(--text-main);
     margin-bottom: 15px;
-    font-size: 1.8rem;
-    font-weight: 700;
+    line-height: 1.2;
 }
 
-.description {
-    color: var(--text-muted);
-    margin-bottom: 30px;
+p {
     line-height: 1.6;
-    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 1rem;
 }
 
-/* Forms */
+/* --- FORMS & INPUTS --- */
 .input-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: left;
 }
 
 .input-group label {
     display: block;
-    font-size: 0.8rem;
-    color: #576574;
     margin-bottom: 8px;
-    margin-left: 5px;
     font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.95rem;
 }
 
 input,
 select {
     width: 100%;
-    padding: 15px;
-    background: #f1f2f6;
-    border: 1px solid #ced6e0;
+    padding: 14px 16px;
     border-radius: 12px;
-    color: #2f3542;
+    border: 2px solid #e1e5ea;
+    background: #fdfdfd;
+    color: var(--text-main);
     font-family: var(--font-body);
     font-size: 1rem;
-    transition: 0.3s;
+    transition: all 0.3s;
+    outline: none;
 }
 
 input:focus,
 select:focus {
-    outline: none;
     border-color: var(--primary);
-    background: #fff;
     box-shadow: 0 0 0 4px rgba(74, 105, 189, 0.1);
 }
 
-/* Buttons */
-button {
+/* --- BUTTONS --- */
+.btn {
     width: 100%;
     padding: 16px;
-    border-radius: 12px;
+    border-radius: 50px;
     border: none;
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(74, 105, 189, 0.3);
     margin-top: 10px;
     letter-spacing: 0.5px;
 }
 
-.btn-primary {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(74, 105, 189, 0.2);
-}
-
-.btn-primary:hover {
+.btn:hover {
     transform: translateY(-2px);
-    background: #3c5496;
-    box-shadow: 0 6px 15px rgba(74, 105, 189, 0.3);
+    box-shadow: 0 8px 25px rgba(74, 105, 189, 0.4);
 }
 
-.btn-secondary {
+.btn.secondary {
     background: transparent;
-    border: 2px solid #ccc;
-    color: #7f8fa6;
-}
-
-.btn-secondary:hover {
-    border-color: var(--primary);
+    border: 2px solid var(--primary);
     color: var(--primary);
-    background: transparent;
+    box-shadow: none;
+}
+
+.btn.secondary:hover {
+    background: rgba(74, 105, 189, 0.05);
 }
 
 .btn-gold {

@@ -6,18 +6,14 @@ Sistemi çok daha kolay kurulabilir hale getirdik. Artık backend klasörüyle u
     Terminalden şu komutları gir:
     ```bash
     git add .
-    git commit -m "Full stack yapılandırması"
+    git commit -m "API model fix ve UI guncellemesi"
     git push -u origin main
     ```
 
 2.  **Digital Ocean Paneline Dön:**
-    Eğer az önceki kurulum başarısız olduysa veya "Static Site" olarak kaldıysa:
-    *   O uygulamayı silip (Destroy) baştan "Create App" diyebilirsin.
-    *   Repo'yu seçtiğinde bu sefer **Otomatik Olarak "Web Service"** algılayacak. (Çünkü `package.json` artık ana dizinde).
-    
-    veya mevcut ayarları şöyle güncelle:
-    *   **Source Directory:** `/` (Kök dizin - Sadece "/" işareti)
-    *   **Resource Type:** Eğer hala "Static Site" görünüyorsa, "Manage" diyip silebilir ve yerine "Web Service" ekleyebilirsin. Ancak en temizi silip baştan kurmaktır.
+    *   Commit attıktan sonra Digital Ocean otomatik olarak yeniden build almaya başlayacaktır.
+    *   **Activity** sekmesinden takibini yapabilirsin.
+    *   Kurulum bitince "Live App" butonuna basarak güncel siteyi gör.
 
 3.  **Environment Variables (Unutma!):**
     *   Key: `GEMINI_API_KEY`

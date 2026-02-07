@@ -126,10 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async generateImage(prompt) {
             console.log("Görsel üretiliyor:", prompt);
-            // Ücretsiz ve key gerektirmeyen Stable Diffusion API (Pollinations.ai)
-            // Prompt'u URL-safe hale getir
-            const encodedPrompt = encodeURIComponent(prompt + ", mystical, high quality, 8k, tarot style, golden ratio");
-            const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=768&height=1024&seed=${Math.floor(Math.random() * 1000)}`;
+            // Pollinations.ai için "Pro" seviyesinde detaylı prompt zenginleştirme
+            const refinedPrompt = `${prompt}, mystical tarot card style, cinematic lighting, 8k resolution, highly detailed, gold accents, ethereal atmosphere, digital art, masterpiece`;
+            const encodedPrompt = encodeURIComponent(refinedPrompt);
+
+            // Seed ekleyerek her seferinde farklı varyasyon gelmesini sağlıyoruz
+            const seed = Math.floor(Math.random() * 99999);
+            const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=800&height=1024&seed=${seed}&model=flux`; // Flux modeli daha kaliteli
             return imageUrl;
         }
     };
