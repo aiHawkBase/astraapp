@@ -76,16 +76,15 @@ app.post('/api/generate-image', async (req, res) => {
             return res.status(500).json({ error: "API Key not configured" });
         }
 
-        // Gemini Image Generation Model (Preview)
-        // Not: Bu model her hesapta aktif olmayabilir, hata alirsa fallback (Pollinations) kullanmasi gerekecek frontend'de.
+        // Gemini Image Generation Model
+        // "gemini-2.0-flash-exp" supports image generation via generateContent
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "image/jpeg"
-                }
+                // generationConfig kaldırıldı çünkü 'image/jpeg' mimetype hatası veriyor.
+                // Model otomatik olarak image döndürecektir veya text içinde link/base64 verecektir.
             })
         });
 

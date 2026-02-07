@@ -1,20 +1,26 @@
 :root {
-    --bg-dark: #f0f4f8;
-    /* Very light slate/blue-ish white */
+    /* Colors */
+    --bg-dark: #f8f9fa;
+    /* Clean White/Grey Background */
     --bg-panel: #ffffff;
     --primary: #4a69bd;
     /* Trustworthy Blue */
+    --primary-dark: #1e3799;
     --gold: #f6b93b;
     /* Premium Gold */
-    --text-main: #2c3e50;
-    /* Dark Slate Grey (Readable) */
-    --text-muted: #7f8fa6;
-    /* Soft Grey */
-    --font-heading: 'Cinzel', serif;
-    --font-body: 'Montserrat', sans-serif;
-    --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.08);
-    /* Neumorphic soft shadow */
+    --text-main: #2f3640;
+    /* High Contrast Dark Grey */
+    --text-muted: #718093;
+    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 15px 35px rgba(74, 105, 189, 0.2);
+
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
 }
+
+/* --- GLOBAL RESET & TYPOGRAPHY --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap');
 
 * {
     box-sizing: border-box;
@@ -51,61 +57,7 @@ body {
     /* Fixed yerine relative, içerik uzadıkça scroll olsun */
 }
 
-/* --- MODERN UI VARIABLES --- */
-:root {
-    /* Colors */
-    --bg-dark: #f8f9fa;
-    /* Clean White/Grey Background */
-    --bg-panel: #ffffff;
-    --primary: #4a69bd;
-    /* Trustworthy Blue */
-    --primary-dark: #1e3799;
-    --gold: #f6b93b;
-    /* Premium Gold */
-    --text-main: #2f3640;
-    /* High Contrast Dark Grey */
-    --text-muted: #718093;
-    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 15px 35px rgba(74, 105, 189, 0.2);
 
-    /* Typography */
-    --font-heading: 'Outfit', sans-serif;
-    --font-body: 'Inter', sans-serif;
-}
-
-/* --- GLOBAL RESET & TYPOGRAPHY --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap');
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: var(--font-body);
-    background: var(--bg-dark);
-    /* Modern Gradient Background */
-    background-image:
-        radial-gradient(circle at 10% 20%, rgba(74, 105, 189, 0.05) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(246, 185, 59, 0.05) 0%, transparent 20%);
-    color: var(--text-main);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 20px;
-    overflow-x: hidden;
-}
-
-.container {
-    width: 100%;
-    max-width: 480px;
-    /* Removed margin: 0 auto causing conflict with flex centering */
-    position: relative;
-    z-index: 10;
-}
 
 /* --- CARD STYLES (High Contrast) --- */
 .card {
@@ -226,15 +178,18 @@ select:focus {
 }
 
 .btn-gold {
-    background: var(--gold);
+    background: linear-gradient(135deg, #f6b93b, #e58e26);
     color: #fff;
-    box-shadow: 0 4px 10px rgba(246, 185, 59, 0.3);
+    box-shadow: 0 4px 15px rgba(246, 185, 59, 0.4);
+    width: 100%;
+    margin-top: 20px;
+    font-weight: 700;
 }
 
 .btn-gold:hover {
-    transform: translateY(-2px);
-    background: #e5aa34;
-    box-shadow: 0 6px 15px rgba(246, 185, 59, 0.4);
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, #e58e26, #d35400);
+    box-shadow: 0 8px 25px rgba(246, 185, 59, 0.5);
 }
 
 /* Teaser Specifics */
@@ -467,35 +422,50 @@ select:focus {
 }
 
 .location-analysis {
-    text-align: left;
+    text-align: center;
+    /* Center text */
     margin-bottom: 20px;
     font-size: 0.95rem;
     line-height: 1.6;
+    background: rgba(246, 185, 59, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(246, 185, 59, 0.2);
 }
 
 .highlight-text {
     font-weight: bold;
-    color: var(--gold);
+    color: #e58e26;
     margin-top: 15px;
     font-size: 1rem;
     display: block;
 }
 
 .locked-content {
-    margin: 20px 0;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+    margin: 25px 0;
+    background: #f8f9fa;
+    border-radius: 16px;
     overflow: hidden;
     position: relative;
+    border: 1px solid #e1e5ea;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .blur-row {
     padding: 15px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    /* Center content */
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.5);
+    gap: 15px;
+    /* Add space between text and icon */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    color: var(--text-muted);
+    font-weight: 500;
+
 }
 
 .blur-row span {
