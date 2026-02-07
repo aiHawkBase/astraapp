@@ -96,6 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // --- DEBUG LOGGING ADDED FOR USER ---
                 console.log("🔵 ASTRA API HAM YANIT:", data); // Tüm yanıtı gör
 
+                // FIX: Eğer data zaten parse edilmiş geldiyse (server.js yapıyor), direkt kullan.
+                if (data.user_profile && data.full_report) {
+                    return data;
+                }
+
                 if (data.error) {
                     console.error("🔴 API İÇİ HATA:", data.error);
                     throw new Error(`API Servis Hatası: ${data.error.message || JSON.stringify(data.error)}`);
@@ -474,9 +479,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('report-user-name').innerText = user.name;
         document.getElementById('report-date').innerText = new Date().toLocaleDateString('tr-TR');
 
-        // GÖRSEL OLUŞTURMA İŞLEMLERİ (Paralel İstekler)
-        // Kullanıcıyı bekletmemek için önce metni basacağız, görseller yüklenince güncellenecek
+        // GÖRSEL OLUŞTURMA İŞLEMLERİ (SIRALI - Kullanıcı İsteği)
         const prompts = data.image_prompts || [];
+        const imageIds = ['img-cover', 'img-spirit', 'img-love', 'img-career', 'img-karma'];
+
+        // Önce placeholder metinleri göster
 
         let reportHTML = `
             <div class="report-intro">
@@ -493,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="report-page">
                 <h2>Bölüm 1: Kozmik Kimliğin & Güneş</h2>
                 <div class="chart-placeholder" id="img-cover">
-                    <span class="loading-img">Kozmik Tarot Kartın Çiziliyor...</span>
+                    <div class="loading-spinner"><i class="fa-solid fa-paintbrush fa-spin"></i> Özel Kartın Çiziliyor...</div>
                 </div>
                 <p>${report.chapter_1_identity}</p>
             </div>
@@ -506,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="report-page">
                 <h2>Bölüm 3: Duygusal Dünyan (Ay)</h2>
                 <div class="chart-placeholder" id="img-spirit">
-                     <span class="loading-img">Ruh Hayvanın Beliriyor...</span>
+                     <div class="loading-spinner"><i class="fa-solid fa-dragon fa-spin"></i> Ruh Hayvanın Çağırılıyor...</div>
                 </div>
                 <p><strong>Ruh Hayvanın:</strong> ${profile.spirit_animal}</p>
                 <p>${report.chapter_3_emotion}</p>
@@ -514,19 +521,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <div class="report-page">
                 <h2>Bölüm 4: Aşk ve İlişkiler</h2>
-                <div class="chart-placeholder" id="img-love"></div>
+                <div class="chart-placeholder" id="img-love">
+                    <div class="loading-spinner"><i class="fa-solid fa-heart fa-spin"></i> Aşk Enerjisi Şekilleniyor...</div>
+                </div>
                 <p>${report.chapter_4_love}</p>
             </div>
 
             <div class="report-page">
                 <h2>Bölüm 5: Karma ve Satürn</h2>
-                <div class="chart-placeholder" id="img-karma"></div>
+                <div class="chart-placeholder" id="img-karma">
+                    <div class="loading-spinner"><i class="fa-solid fa-infinity fa-spin"></i> Karmik Döngü Çiziliyor...</div>
+                </div>
                 <p>${report.chapter_5_karma}</p>
             </div>
 
             <div class="report-page">
                 <h2>Bölüm 6: Kariyer ve Finans</h2>
-                <div class="chart-placeholder" id="img-career"></div>
+                <div class="chart-placeholder" id="img-career">
+                    <div class="loading-spinner"><i class="fa-solid fa-coins fa-spin"></i> Başarı Yolu Oluşturuluyor...</div>
+                </div>
                 <p>${report.chapter_6_career}</p>
             </div>
 
@@ -560,27 +573,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>${report.chapter_10_ritual}</p>
                 </div>
             </div>
+            
+            <div class="report-actions" style="margin-top: 40px; text-align: center;">
+                 <button id="btn-download-pdf" class="btn-primary" onclick="window.print()">
+                    <i class="fa-solid fa-file-pdf"></i> Raporu PDF Olarak İndir
+                 </button>
+            </div>
         `;
 
         contentDiv.innerHTML = reportHTML;
 
-        // Görselleri Arka Planda Yükle
-        if (prompts[0]) updateImage('img-cover', prompts[0]);
-        if (prompts[1]) updateImage('img-spirit', prompts[1]);
-        if (prompts[2]) updateImage('img-love', prompts[2]);
-        if (prompts[3]) updateImage('img-career', prompts[3]);
-        if (prompts[4]) updateImage('img-karma', prompts[4]);
+        // Görselleri SIRAYLA (Sequential) Yükle
+        for (let i = 0; i < prompts.length; i++) {
+            if (i < imageIds.length) {
+                // Her görsel için bekle
+                await updateImage(imageIds[i], prompts[i]);
+                // Küçük bir bekleme (opsiyonel, API limitine takılmamak için)
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
     }
 
     async function updateImage(elementId, prompt) {
         const el = document.getElementById(elementId);
         if (!el) return;
         try {
+            console.log(`Görsel isteniyor (${elementId}):`, prompt);
+
+            // Kullanıcının istediği 'pro' modelin simulate edilmesi
             const url = await AstraAPI.generateImage(prompt);
-            el.innerHTML = '';
+
+            el.innerHTML = ''; // Loading spinner'ı temizle
             el.style.backgroundImage = `url('${url}')`;
             el.style.backgroundSize = 'cover';
             el.style.backgroundPosition = 'center';
+            el.style.height = '400px'; // Yükseklik ver
+            el.style.borderRadius = '15px';
+            el.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+
         } catch (e) {
             console.error("Resim yüklenemedi", e);
             el.innerHTML = '<span class="error">Görsel oluşturulamadı</span>';

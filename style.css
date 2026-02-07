@@ -172,7 +172,8 @@ select:focus {
 }
 
 /* --- BUTTONS --- */
-.btn {
+.btn,
+.btn-primary {
     width: 100%;
     padding: 18px;
     border-radius: 16px;
@@ -190,7 +191,8 @@ select:focus {
     overflow: hidden;
 }
 
-.btn:hover {
+.btn:hover,
+.btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 30px -5px rgba(74, 105, 189, 0.5);
 }
@@ -374,27 +376,32 @@ select:focus {
 /* Typography for Analysis */
 .analysis-box {
     text-align: left;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 20px;
-    border-radius: 15px;
-    margin: 20px 0;
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    background: #ffffff;
+    /* Clean white background */
+    padding: 25px;
+    border-radius: 20px;
+    margin: 25px 0;
+    border: 1px solid rgba(74, 105, 189, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
 .gold-text {
-    color: var(--gold);
+    color: #e58e26;
+    /* Darker Gold for Contrast */
     font-size: 1.1rem;
     margin-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-    padding-bottom: 5px;
-    display: inline-block;
+    font-weight: 700;
+    border-bottom: none;
+    display: block;
 }
 
 .italic-text {
     font-style: italic;
-    color: #dfe6e9;
-    font-size: 0.95rem;
-    line-height: 1.5;
+    color: var(--text-main);
+    /* Readable dark grey */
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.9;
 }
 
 .mystery-box {
