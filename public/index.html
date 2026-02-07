@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroInsight - Geo Analiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .chart-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+            box-shadow: 0 0 30px rgba(79, 70, 229, 0.3);
+            border: 2px solid #475569;
+        }
+        svg { width: 100%; height: 100%; animation: slow-spin 60s linear infinite; }
+        .planet-dot { fill: #fbbf24; filter: drop-shadow(0 0 5px #fbbf24); }
+        .house-line { stroke: rgba(255,255,255,0.2); stroke-width: 1; }
+        .center-cross { stroke: rgba(79, 70, 229, 0.5); stroke-width: 2; }
+        @keyframes slow-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="scan-line"></div>
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+
+    <div class="main-container">
+        <header>
+            <div class="brand">AstroInsight</div>
+            <div class="subtitle">Kaderin Matematiği</div>
+        </header>
+
+        <!-- STEP 1 -->
+        <div id="step-1" class="step-card active">
+            <div class="step-header">
+                <span class="step-badge">ADIM 1/3</span>
+                <h2>Enerji Kimliği</h2>
+            </div>
+            <div class="form-group">
+                <label>Adınız ve Soyadınız</label>
+                <input type="text" id="user-name" placeholder="Örn: Defne Yılmaz">
+            </div>
+            <div class="form-group">
+                <label>Doğum Tarihiniz</label>
+                <input type="date" id="birth-date">
+            </div>
+            <div class="form-group">
+                <label>Burcunuz (Güneş)</label>
+                <select id="sign-select">
+                    <option value="koç">Koç (Aries)</option>
+                    <option value="boğa">Boğa (Taurus)</option>
+                    <option value="ikizler">İkizler (Gemini)</option>
+                    <option value="yengeç">Yengeç (Cancer)</option>
+                    <option value="aslan">Aslan (Leo)</option>
+                    <option value="başak">Başak (Virgo)</option>
+                    <option value="terazi">Terazi (Libra)</option>
+                    <option value="akrep">Akrep (Scorpio)</option>
+                    <option value="yay">Yay (Sagittarius)</option>
+                    <option value="oğlak">Oğlak (Capricorn)</option>
+                    <option value="kova">Kova (Aquarius)</option>
+                    <option value="balık">Balık (Pisces)</option>
+                </select>
+            </div>
+            <button onclick="goToStep2()">Analizi Başlat</button>
+        </div>
+
+        <!-- STEP 2 -->
+        <div id="step-2" class="step-card hidden">
+            <div class="step-header">
+                <span class="step-badge">ADIM 2/3</span>
+                <h2>Ön Analiz Tamamlandı</h2>
+            </div>
+            <div id="result-part-1" class="analysis-text"></div>
+            <div class="interruption-box">
+                <p class="warning-text">⚠️ <strong>Dikkat:</strong> Haritanızda "12. Ev" ve Yükselen Burcunuzla ilgili belirsiz bir açı var. Bu açının netleşmesi için doğum yerinizin koordinatlarına ihtiyacımız var.</p>
+                <div class="form-row" style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Doğum Şehri</label>
+                        <input type="text" id="birth-city" placeholder="Örn: İstanbul">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Doğum İlçesi</label>
+                        <input type="text" id="birth-district" placeholder="Örn: Kadıköy">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Doğum Saati (Tahmini)</label>
+                    <input type="time" id="birth-time">
+                </div>
+                <button onclick="goToStep3()">Koordinatları İşle & Sonucu Gör</button>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div id="step-3" class="step-card hidden">
+            <div class="step-header">
+                <span class="step-badge">ADIM 3/3</span>
+                <h2>DOĞUM HARİTASI (NATAL CHART)</h2>
+            </div>
+            <div class="chart-container" id="natal-chart"></div>
+            <p style="text-align:center; font-size:0.8rem; color:#94a3b8; margin-bottom:20px;">
+                <span id="display-location"></span> Konumu İçin Hesaplanmıştır
+            </p>
+            <div id="result-part-2" class="analysis-text"></div>
+            <div class="premium-locker">
+                <div class="lock-header">
+                    <span class="pulse-dot"></span>
+                    <h3>3 KRİTİK KEHANET (KİLİTLİ)</h3>
+                </div>
+                <div class="blurred-container">
+                    <div class="blurred-item" id="teaser-1"></div>
+                    <div class="blurred-item" id="teaser-2"></div>
+                    <div class="blurred-item" id="teaser-3"></div>
+                    <div class="unlock-overlay">
+                        <div class="lock-icon">🔒</div>
+                        <p class="overlay-title">BU BİLGİLER ŞAHSİDİR</p>
+                        <p class="overlay-desc">Doğum yerinize göre hesaplanan ev çizgileri, önümüzdeki 72 saatin kaderini belirledi.</p>
+                        <button class="buy-btn" onclick="openPaymentModal()">RAPORU İNDİR (₺49.90)</button>
+                        <div class="timer">Kalan Süre: 04:59</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div id="payment-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Güvenli Ödeme</h3>
+                <span class="close-btn" onclick="closePaymentModal()">×</span>
+            </div>
+            <div class="credit-card-visual">
+                <div class="card-chip"></div>
+                <div class="card-number">**** **** **** 4242</div>
+                <div class="card-name">AstroInsight Member</div>
+                <div class="card-logo">VISA</div>
+            </div>
+            <div class="payment-form">
+                <input type="text" placeholder="Kart Üzerindeki İsim">
+                <input type="text" placeholder="Kart Numarası">
+                <div class="form-row" style="display:flex; gap:10px;">
+                    <input type="text" placeholder="AA/YY" style="width:50%;">
+                    <input type="text" placeholder="CVC" style="width:50%;">
+                </div>
+                <button class="pay-btn" onclick="processPayment()">Ödemeyi Onayla (₺49.90)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let globalData = null;
+
+        async function goToStep2() {
+            const name = document.getElementById('user-name').value;
+            if(!name) { alert("Lütfen isminizi giriniz."); return; }
+            const btn = document.querySelector('#step-1 button');
+            btn.innerText = "Yıldız Konumları Taranıyor...";
+            btn.disabled = true;
+            setTimeout(async () => {
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-1').classList.remove('active');
+                const step2 = document.getElementById('step-2');
+                step2.classList.remove('hidden');
+                setTimeout(() => step2.classList.add('active'), 50);
+                document.getElementById('result-part-1').innerHTML = `<p>Sayın <strong>${name}</strong>, Güneş burcunuzdaki hareketlilik genel bir "Dönüşüm" sürecine işaret ediyor. Ancak detaylar, doğum anınızdaki ufuk çizgisine (Yükselen) bağlı.</p>`;
+            }, 1500);
+        }
+
+        async function goToStep3() {
+            const name = document.getElementById('user-name').value;
+            const sign = document.getElementById('sign-select').value;
+            const city = document.getElementById('birth-city').value;
+            const district = document.getElementById('birth-district').value;
+            const time = document.getElementById('birth-time').value;
+
+            if(!city || !district || !time) { alert("Lütfen doğum yeri ve saati bilgilerini eksiksiz giriniz."); return; }
+
+            const btn = document.querySelector('#step-2 button');
+            btn.innerText = "Yükselen Burç Hesaplanıyor...";
+            btn.disabled = true;
+
+            try {
+                const url = `/api/fortune?sign=${sign}&name=${encodeURIComponent(name)}&city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}&time=${encodeURIComponent(time)}`;
+                const response = await fetch(url);
+                globalData = await response.json();
+
+                setTimeout(() => {
+                    document.getElementById('step-2').classList.add('hidden');
+                    document.getElementById('step-2').classList.remove('active');
+                    const step3 = document.getElementById('step-3');
+                    step3.classList.remove('hidden');
+                    setTimeout(() => step3.classList.add('active'), 50);
+
+                    document.getElementById('display-location').innerText = globalData.meta.location;
+                    drawChart(globalData.stage2.chartData);
+                    
+                    const allContent = [...globalData.stage1.content, ...globalData.stage2.content];
+                    document.getElementById('result-part-2').innerHTML = allContent.map(p => `<p>${formatText(p)}</p>`).join('');
+                    
+                    document.getElementById('teaser-1').innerText = "1. " + globalData.stage3.lockedItems[0];
+                    document.getElementById('teaser-2').innerText = "2. " + globalData.stage3.lockedItems[1];
+                    document.getElementById('teaser-3').innerText = "3. " + globalData.stage3.lockedItems[2];
+                }, 2500);
+            } catch(e) {
+                alert("Hesaplama hatası.");
+                btn.disabled = false;
+            }
+        }
+
+        function drawChart(planets) {
+            const container = document.getElementById('natal-chart');
+            let svgContent = `<svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" stroke="#475569" stroke-width="0.5" fill="none" />
+                <circle cx="50" cy="50" r="30" stroke="#475569" stroke-width="0.5" fill="none" opacity="0.5" />
+                <line x1="50" y1="5" x2="50" y2="95" class="center-cross" />
+                <line x1="5" y1="50" x2="95" y2="50" class="center-cross" />
+                ${[30, 60, 120, 150].map(deg => {
+                    const rad = deg * Math.PI / 180;
+                    const x2 = 50 + 48 * Math.cos(rad);
+                    const y2 = 50 + 48 * Math.sin(rad);
+                    return `<line x1="50" y1="50" x2="${x2}" y2="${y2}" class="house-line" />`;
+                }).join('')}
+                ${planets.map(p => {
+                    const rad = p.angle * Math.PI / 180;
+                    const r = 20 + (p.radius % 25); 
+                    const x = 50 + r * Math.cos(rad);
+                    const y = 50 + r * Math.sin(rad);
+                    return `<circle cx="${x}" cy="${y}" r="1.5" class="planet-dot" />`;
+                }).join('')}
+            </svg>`;
+            container.innerHTML = svgContent;
+        }
+
+        function formatText(text) { return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); }
+
+        // Modal Logic
+        function openPaymentModal() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closePaymentModal() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function processPayment() {
+            const btn = document.querySelector('.pay-btn');
+            btn.innerText = "İşleniyor...";
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.style.background = "#22c55e";
+                btn.innerText = "Ödeme Başarılı!";
+                setTimeout(() => {
+                    alert("Demo Modu: Ödeme başarılı simülasyonu. Normalde burada tam rapor açılırdı.");
+                    closePaymentModal();
+                    btn.innerText = "Ödemeyi Onayla (₺49.90)";
+                    btn.style.background = "";
+                    btn.disabled = false;
+                }, 1000);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

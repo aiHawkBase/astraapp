@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astra | Kaderinizin Haritası</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+
+    <!-- Mascot / Cosmic Guide -->
+    <div id="mascot-container" class="mascot-container hidden">
+        <div class="mascot-orb pulse-anim">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+        </div>
+        <div class="mascot-bubble hidden" id="mascot-text">
+            Merhaba, ben Astra Rehberin...
+        </div>
+    </div>
+
+    <div class="container"></div>
+
+    <!-- Landing Page (New Entry Point) -->
+    <section id="landing-page" class="card active" style="text-align: center; padding: 60px 20px;">
+        <div class="landing-hero">
+            <h1 class="glow-text">ASTRA</h1>
+            <p class="tagline">Yıldızların Ötesindeki Gerçeği Keşfet</p>
+            <div class="mascot-preview">
+                <div class="mascot-orb"></div>
+            </div>
+            <p class="description">
+                Yapay Zeka Destekli, Kişiselleştirilmiş Kozmik Rehberiniz.<br>
+                Sadece doğum haritanızı değil, ruhunuzun derinliklerini analiz ediyoruz.
+            </p>
+            <button id="btn-start" class="btn-primary pulse-anim" style="font-size: 1.2rem;">
+                Ücretsiz Analizi Başlat <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <div class="features-grid" style="margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="feature-item">
+                <i class="fa-solid fa-brain"></i>
+                <h4>AI Destekli</h4>
+                <p>Sürekli öğrenen astroloji motoru.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-scroll"></i>
+                <h4>12 Aylık Rapor</h4>
+                <p>Detaylı gelecek projeksiyonu.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Funnel Steps (Existing but potentially modified) -->
+
+    <!-- FAZ 1: İsim & Tarih -->
+    <section id="step-1" class="card hidden">
+        <h2>Ruhunuzun Şifresi</h2>
+        <p class="description">Yıldızlar doğduğunuz anı mühürledi. O mührü açmak için anahtarı girin.</p>
+
+        <form id="form-basic">
+            <div class="input-group">
+                <label>Adınız</label>
+                <input type="text" id="fullName" placeholder="İsminiz" required>
+            </div>
+            <div class="input-group">
+                <label>Doğum Tarihiniz</label>
+                <input type="date" id="birthDate" required>
+            </div>
+            <button type="submit" class="btn-primary">Analizi Başlat <i class="fa-solid fa-arrow-right"></i></button>
+        </form>
+    </section>
+
+    <!-- FAZ 1.5: İLK BÜYÜK YORUM (Hook 1) -->
+    <section id="step-teaser-1" class="card hidden">
+        <div class="zodiac-badge">
+            <div id="zodiacIcon1" class="icon"></div>
+            <h3 id="zodiacName1">BURÇ</h3>
+        </div>
+
+        <div class="analysis-box">
+            <h4 class="gold-text">Ruh Analizi</h4>
+            <p id="deepAnalysisText"></p>
+
+            <h4 class="gold-text" style="margin-top: 20px;">Şu Anki Enerjin</h4>
+            <p id="currentVibeText" class="italic-text"></p>
+        </div>
+
+        <div class="mystery-box">
+            <i class="fa-solid fa-eye"></i>
+            <p id="mysteryHookText"></p>
+        </div>
+
+        <button id="btn-to-step2" class="btn-primary pulse-anim">
+            Bu Kilidi Açmak İçin Devam Et <i class="fa-solid fa-arrow-down"></i>
+        </button>
+    </section>
+
+    <!-- FAZ 2: Saat & Konum (Detay Veri) -->
+    <section id="step-2" class="card hidden">
+        <h2>Kozmik Koordinatlar</h2>
+        <p class="description">Kader detaylarda gizlidir. Doğum saatiniz ve yeriniz, "Evler"inizi belirler.</p>
+
+        <form id="form-advanced">
+            <div class="input-group">
+                <label>Doğum Saati (Tahmini de olsa girin)</label>
+                <input type="time" id="birthTime" required>
+            </div>
+
+            <div class="input-group">
+                <label>Doğum Şehri (İl)</label>
+                <select id="birthCity" required>
+                    <option value="" disabled selected>İl Seçiniz</option>
+                    <!-- JS ile dolacak -->
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>İlçe</label>
+                <select id="birthDistrict" disabled required>
+                    <option value="" disabled selected>Önce İl Seçiniz</option>
+                </select>
+            </div>
+
+            <div class="loading-bar-container hidden" id="analysisLoader">
+                <div class="loading-text" id="loadingText">Yıldız haritası çıkarılıyor...</div>
+                <div class="loading-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-finalize">Derin Analizi Hesapla</button>
+        </form>
+    </section>
+
+    <!-- FAZ 2.5: İKİNCİ TEASER (Hook 2 - Location Based) -->
+    <section id="step-teaser-2" class="card hidden">
+        <div class="alert-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h3>Kritik Bulgular Tespit Edildi!</h3>
+        </div>
+
+        <div class="location-analysis">
+            <p id="locationHookText">...</p>
+            <p id="finalCallText" class="highlight-text">...</p>
+        </div>
+
+        <div class="locked-content">
+            <div class="blur-row"><span>12 Aylık Aşk Takvimi</span> <i class="fa-solid fa-lock"></i></div>
+            <div class="blur-row"><span>Finansal Kırılma Tarihleri</span> <i class="fa-solid fa-lock"></i></div>
+            <div class="blur-row"><span>Ruh Eşi Tanımlaması</span> <i class="fa-solid fa-lock"></i></div>
+        </div>
+
+        <button id="btn-to-payment" class="btn-gold">
+            Tam Raporu Hemen Aç <i class="fa-solid fa-unlock"></i>
+        </button>
+    </section>
+
+    <!-- FAZ 3: Ödeme -->
+    <section id="step-payment" class="card hidden">
+        <div class="offer-header">
+            <h2>Tam Kapsamlı Astro-Rapor</h2>
+            <div class="timer">Fırsatın bitmesine: <span id="countdown">14:59</span></div>
+        </div>
+
+        <div class="price-box">
+            <div class="price-row">
+                <span class="label">Normal Değer:</span>
+                <span class="val strike">₺1250</span>
+            </div>
+            <div class="price-row main">
+                <span class="label">Size Özel Fırsat:</span>
+                <span class="val gold">₺299</span>
+            </div>
+        </div>
+
+        <form id="form-payment">
+            <div class="input-group">
+                <label>Kart Sahibi</label>
+                <input type="text" placeholder="Ad Soyad" required>
+            </div>
+            <div class="input-group">
+                <label>Kart Numarası</label>
+                <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
+            </div>
+            <div class="row">
+                <div class="input-group">
+                    <label>SKT</label>
+                    <input type="text" placeholder="AA/YY" maxlength="5" required>
+                </div>
+                <div class="input-group">
+                    <label>CVV</label>
+                    <input type="text" placeholder="***" maxlength="3" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-gold shine-effect">Ödeme Yap ve Geleceğini Gör</button>
+        </form>
+
+        <div class="trust-badges">
+            <i class="fa-brands fa-cc-visa"></i>
+            <i class="fa-brands fa-cc-mastercard"></i>
+            <i class="fa-solid fa-lock"></i> 256-Bit SSL
+        </div>
+    </section>
+
+    <!-- FAZ 4: Başarılı & Yönlendirme -->
+    <section id="step-success" class="card hidden">
+        <div class="success-anim">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <h2>Ödeme Başarılı!</h2>
+        <p>Yıldız haritanız oluşturuldu. Şimdi aşağıya tıklayarak raporunuzu görüntüleyin.</p>
+        <div class="delivery-info">
+            <p><i class="fa-solid fa-envelope"></i> E-posta gönderildi.</p>
+        </div>
+        <button id="btn-view-report" class="btn-primary pulse-anim">RAPORU GÖRÜNTÜLE</button>
+    </section>
+
+    <!-- FAZ 5: Dijital Kitapçık (Report Viewer) -->
+    <section id="report-view" class="report-container hidden">
+        <!-- Dinamik olarak JS ile doldurulacak -->
+        <div class="report-header">
+            <h1>ASTRA RAPORU</h1>
+            <p id="report-user-name">...</p>
+            <div class="report-meta">
+                <span id="report-date"></span> oluşturuldu.
+            </div>
+        </div>
+        <div id="report-content" class="book-content">
+            <!-- Sayfalar buraya gelecek -->
+        </div>
+        <button onclick="location.reload()" class="btn-secondary" style="margin-top: 30px;">Çıkış Yap</button>
+    </section>
+
+    <script src="locations.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
