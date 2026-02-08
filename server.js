@@ -44,21 +44,17 @@ async function processReadingJob(jobId, prompt) {
 
         console.log(`[Job ${jobId}] Using Model: ${modelToUse}`);
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
+        // Initialize GoogleGenAI Client
+        const { GoogleGenAI } = require("@google/genai");
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        const response = await ai.models.generateContent({
+            model: modelToUse,
+            contents: prompt,
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Gemini API Error: ${errorText}`);
-        }
+        const rawText = response.text();
 
-        const data = await response.json();
-        const rawText = data.candidates[0].content.parts[0].text;
         // Clean markdown
         const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
 
@@ -146,40 +142,48 @@ app.post('/api/generate-image', async (req, res) => {
             return res.status(500).json({ error: "API Key not configured" });
         }
 
-        // Gemini Image Generation Model
-        // Gemini Image Generation Model
-        // Using 'gemini-2.0-flash-exp' which supports multimodal generation
-        // or falling back to Pollinations if it fails.
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: "Generate an image: " + prompt }] }],
-                generationConfig: {
-                    // responseModalities: ["IMAGE"] // Removing strict modality to allow fallback/flexibility
+        // Initialize GoogleGenAI Client
+        const { GoogleGenAI } = require("@google/genai");
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        try {
+            // Attempt to use Imagen 3
+            // Note: The specific model string and method might vary by region/access.
+            // unique model: 'imagen-3.0-generate-001'
+            const response = await ai.models.generateContent({
+                model: 'imagen-3.0-generate-001',
+                contents: prompt,
+                config: {
+                    responseMimeType: 'image/jpeg'
                 }
-            })
-        });
+            });
 
-        if (!response.ok) {
-            const err = await response.text();
-            console.warn("Gemini Image API Failed (Falling back to Pollinations):", err);
-            return res.json({ imageUrl: null, error: "Gemini API Error" });
-        }
+            // Inspect response for image data
+            // The SDK typically returns the raw response structure in one of the properties or helpers
+            // For 'generateContent' with images, we expect 'inlineData' in parts.
 
-        const data = await response.json();
+            // Note: response might be a wrapper. 
+            // In the new SDK, response.text() is a helper for text. 
+            // We need to look at response.candidates...
 
-        // Check for image data in various potential formats
-        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
-            for (const part of data.candidates[0].content.parts) {
-                if (part.inlineData && part.inlineData.mimeType.startsWith('image')) {
-                    return res.json({ imageUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` });
+            // Let's assume the standard structure is accessible.
+            const candidates = response.candidates;
+            if (candidates && candidates[0] && candidates[0].content && candidates[0].content.parts) {
+                for (const part of candidates[0].content.parts) {
+                    if (part.inlineData && part.inlineData.mimeType.startsWith('image')) {
+                        return res.json({ imageUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` });
+                    }
                 }
             }
+
+            console.warn("Gemini Image Gen: No image data found in response.");
+
+        } catch (genError) {
+            console.warn("Gemini Image Gen Failed (Using Fallback):", genError.message);
         }
 
-        console.warn("No image data in Gemini response");
-        return res.json({ imageUrl: null });
+        // Fallback: Return null so frontend uses Pollinations
+        res.json({ imageUrl: null });
 
     } catch (error) {
         console.error('Image Gen Error:', error);

@@ -243,12 +243,12 @@
                         <td>#${job.id}</td>
                         <td>${new Date(job.created_at).toLocaleString()}</td>
                         <td>User ${job.user_id}</td>
-                        <td title="${job.prompt}">${job.prompt.substring(0, 30)}...</td>
+                        <td title="${job.prompt}">${job.prompt ? job.prompt.substring(0, 30) : ''}...</td>
                         <td>${job.model_used || '-'}</td>
                         <td><span class="status-badge status-${job.status}">${job.status}</span></td>
                         <td>
-                            ${job.status === 'completed' ? '<button class="btn-sm" onclick="viewResult(' + job.id + ')">Gör</button>' : ''}
-                            ${job.status === 'failed' ? '<button class="btn-sm" style="background:#ff7675;color:white" onclick="retryJob(' + job.id + ')">Tekrar Dene</button>' : ''}
+                            ${job.status === 'completed' ? `<button class="btn-sm" onclick="viewResult(${job.id})">Gör</button>` : ''}
+                            ${job.status === 'failed' ? `<button class="btn-sm" style="background:#ff7675;color:white" onclick="retryJob(${job.id})">Tekrar Dene</button>` : ''}
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -263,10 +263,71 @@
             }
         }
 
+        async function viewResult(jobId) {
+            try {
+                const res = await fetch(`${API_BASE}/jobs/${jobId}`);
+                if (!res.ok) throw new Error("Job bulunamadı");
+                const data = await res.json();
+
+                // create a simple overlay to show result
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.background = 'rgba(0,0,0,0.8)';
+                overlay.style.zIndex = '1000';
+                overlay.style.display = 'flex';
+                overlay.style.justifyContent = 'center';
+                overlay.style.alignItems = 'center';
+
+                const content = document.createElement('div');
+                content.style.background = '#fff';
+                content.style.padding = '20px';
+                content.style.borderRadius = '8px';
+                content.style.width = '80%';
+                content.style.maxHeight = '80%';
+                content.style.overflow = 'auto';
+
+                content.innerHTML = `
+                    <h3>Sonuç (Job #${jobId})</h3>
+                    <pre style="background:#f4f4f4;padding:10px;border-radius:5px;white-space:pre-wrap;">${JSON.stringify(data.data || data, null, 2)}</pre>
+                    <button class="btn-primary" onclick="this.closest('div').parentElement.remove()">Kapat</button>
+                `;
+
+                overlay.appendChild(content);
+                document.body.appendChild(overlay);
+
+            } catch (error) {
+                alert("Hata: " + error.message);
+            }
+        }
+
         async function saveSettings() {
             const model = document.getElementById('config-model').value;
-            // Gerçek API entegrasyonu backend'de henüz yoksa console.log
-            alert('Ayarlar kaydedildi (Demo)');
+            const price = document.getElementById('config-price').value;
+
+            try {
+                // Save Model
+                await fetch(`${API_BASE}/admin/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'model_name', value: model })
+                });
+
+                // Save Price
+                await fetch(`${API_BASE}/admin/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'price_standard', value: price })
+                });
+
+                alert('Ayarlar kaydedildi.');
+            } catch (e) {
+                console.error(e);
+                alert('Kaydetme başarısız');
+            }
         }
 
         function retryJob(id) {

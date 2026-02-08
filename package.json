@@ -4,6 +4,7 @@
     "description": "Full Stack Astra Astrology App (Node.js + Static)",
     "main": "server.js",
     "dependencies": {
+        "@google/genai": "^1.40.0",
         "better-sqlite3": "^12.6.2",
         "cors": "^2.8.5",
         "dotenv": "^16.0.3",
