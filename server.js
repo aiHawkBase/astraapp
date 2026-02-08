@@ -161,13 +161,10 @@ app.post('/api/generate-image', async (req, res) => {
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         try {
-            // Attempt to use Imagen 3
-            // Note: generateContent with Imagen model
-            // config: responseMimeType is NOT supported for image generation models in generateContent usually, 
-            // instead we just ask for content.
-
+            // Attempt to use Gemini 2.5 Flash Image (Nano Banana)
+            // Model: gemini-2.5-flash-image
             const response = await ai.models.generateContent({
-                model: 'imagen-3.0-generate-001',
+                model: 'gemini-2.5-flash-image',
                 contents: prompt
             });
 
@@ -175,7 +172,7 @@ app.post('/api/generate-image', async (req, res) => {
             const candidates = response.candidates;
             if (candidates && candidates[0] && candidates[0].content && candidates[0].content.parts) {
                 for (const part of candidates[0].content.parts) {
-                    if (part.inlineData && part.inlineData.mimeType.startsWith('image')) {
+                    if (part.inlineData) {
                         return res.json({ imageUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` });
                     }
                 }
