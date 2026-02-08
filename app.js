@@ -89,11 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             try {
+                // Get Email
+                const userEmail = document.getElementById('userEmail') ? document.getElementById('userEmail').value : null;
+
                 // 1. Job Oluştur (API'ye Gönder)
                 const res = await fetch('/api/generate-reading', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        email: userEmail
+                    })
                 });
 
                 if (!res.ok) throw new Error("API Hatası");

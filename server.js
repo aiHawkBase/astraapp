@@ -48,39 +48,47 @@ async function processReadingJob(jobId, prompt) {
         const { GoogleGenAI } = require("@google/genai");
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        // Enhanced Prompt for Booklet Style & 3 Images
+        // Enhanced Prompt for "Fairytale/Storybook" Style & 3 Images
         const systemInstruction = `
-        Sen mistik, derin ve bilge bir astrologsun. Kullanıcı için "Astra Kozmik Kitapçığı" (Astra Cosmic Booklet) adında çok kapsamlı, 
-        kitap uzunluğunda (en az 2000 kelime), derinlemesine bir analiz raporu hazırlayacaksın.
+        Sen evrenin en eski masal anlatıcısı ve mistik bir rehbersin. Kullanıcı için "Astra Kozmik Masalı" (Astra Cosmic Tale) adında, 
+        okuması çok keyifli, sürükleyici, büyüleyici ve masalsı bir dille yazılmış kişisel bir astroloji kitabı hazırlayacaksın.
         
+        Dil Tonu: 
+        - Masalsı, şiirsel, akıcı ve sıcak.
+        - "Bir varmış bir yokmuş..." tadında ama astrolojik gerçeklere dayalı.
+        - Sıkıcı analiz dili ASLA kullanma. Okuyucuyu bir kahraman gibi hissettir.
+        - Sanki ona özel yazılmış efsanevi bir parşömen gibi olsun.
+
         Çıktı FORMATI kesinlikle geçerli bir JSON olmalıdır. Markdown blokları kullanma ("\`\`\`json" ekleme).
         
         JSON Şeması:
         {
-          "booklet_title": "Kullanıcıya Özel Başlık",
-          "cover_image_prompt": "Astra mistik temalı, kullanıcıyı temsil eden, yüksek kaliteli, 4k, cinematic prompt",
-          "love_image_prompt": "Kullanıcının aşk hayatını simgeleyen, romantik ve mistik, tarot tarzı prompt",
-          "career_image_prompt": "Kullanıcının kariyer ve finans yolunu simgeleyen, altın ve zenginlik temalı prompt",
+          "booklet_title": "Kullanıcıya Özel Büyülü Başlık (Örn: Ay Işığı Yolcusunun Masalı)",
+          "cover_image_prompt": "Astra mistik temalı, kullanıcıyı bir masal kahramanı gibi gösteren, fantastik, 4k, cinematic prompt",
+          "love_image_prompt": "Kullanıcının aşk hayatını simgeleyen, romantik, pembe ve büyülü orman temalı, tarot tarzı prompt",
+          "career_image_prompt": "Kullanıcının başarı yolunu simgeleyen, altın parlayan, hazine ve krallık temalı prompt",
           "chapters": [
             {
-              "title": "Bölüm Başlığı (Örn: Kozmik Kimlik)",
-              "content": "Uzun paragraf içeriği..."
+              "title": "Bölüm Başlığı (Örn: Başlangıç: Yıldızların Doğuşu)",
+              "content": "Uzun paragraf içeriği... (En az 300 kelime)"
             },
-            ... (En az 7 bölüm, Bölüm 7 özellikle Numeroloji ve Kader üzerine olmalı)
+            ... (En az 7 bölüm. Bölüm 7 Numeroloji olmalı)
           ],
           "numerology": {
             "life_path_number": 6,
-            "analysis": "Numeroloji analizi detaylı..."
+            "analysis": "Numeroloji analizi, masalsı bir dille..."
+          },
+          "api_usage": {
+              "total_tokens": 0 
           }
         }
         
         İçerik Gereksinimleri:
-        1. **Uzunluk ve Derinlik**: Her bölüm en az 300 kelime olmalı. Sanki bir kitap okuyormuş hissi ver. Şiirsel ve profesyonel bir dil kullan.
-        2. **Numeroloji**: Sadece sayı verme. Bu sayının yönetici gezegenini, elementini, önceki yaşam karmasını ve bu hayattaki "Dharma"sını (Görevini) anlat.
-        3. **Görsel Tasvirleri (Prompts)**: 
-           - Kapak Resmi: Mistik, yıldızlar, kullanıcının burcu.
-           - Aşk Resmi: Pembe/Mor tonlar, kupa ası teması, ruh eşi silüeti.
-           - Kariyer Resmi: Altın/Yeşil tonlar, pentagram tılsımı, bereket kapısı.
+        1. **Hikayeleştirme**: "Güneşin İkizler burcunda" demek yerine "Güneş, İkizler krallığında parladığında, zihnin rüzgarları fısıldamaya başladı..." gibi betimlemeler yap.
+        2. **Görsel Tasvirleri (Prompts)**: 
+           - Kapak: Efsanevi, yıldız tozlu.
+           - Aşk: Romantik, rüya gibi.
+           - Kariyer: Görkemli, başarılı.
         
         Kullanıcı Girdisi: "${prompt}"
         `;
@@ -95,6 +103,7 @@ async function processReadingJob(jobId, prompt) {
 
         // SDK V2 Handling
         let rawText = "";
+        let inputChars = systemInstruction.length + prompt.length;
 
         // If response has a text function, use it
         if (typeof response.text === 'function') {
@@ -108,6 +117,16 @@ async function processReadingJob(jobId, prompt) {
         } else {
             throw new Error("Unexpected response format from Gemini API");
         }
+
+        // --- COST CALCULATION (Est. based on chars) ---
+        // Input: ~$0.10/1M chars, Output: ~$0.40/1M chars (Rough Avg for Flash)
+        const outputChars = rawText.length;
+        const estimatedCost = ((inputChars * 0.0000001) + (outputChars * 0.0000004)) * 34; // *34 for TRY conversion roughly
+
+        // Update Job with Cost 
+        try {
+            db.prepare("UPDATE readings SET api_cost = ? WHERE id = ?").run(estimatedCost, jobId);
+        } catch (e) { console.error("Cost update failed", e); }
 
         // Clean markdown
         const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -187,17 +206,16 @@ app.get('/api/health', (req, res) => {
 // 2. Async Horoscope Generation (Queue)
 app.post('/api/generate-reading', (req, res) => {
     try {
-        const { prompt } = req.body;
+        const { prompt, email } = req.body;
 
         if (!process.env.GEMINI_API_KEY) {
             return res.status(500).json({ error: "API Key not configured" });
         }
 
         // Create Job in DB
-        // For V2, we assume anonymous user (id=0) or we can implement user tracking later
         const userId = 0;
-        const stmt = db.prepare("INSERT INTO readings (user_id, prompt, status) VALUES (?, ?, 'pending')");
-        const info = stmt.run(userId, prompt);
+        const stmt = db.prepare("INSERT INTO readings (user_id, prompt, status, user_email) VALUES (?, ?, 'pending', ?)");
+        const info = stmt.run(userId, prompt, email || null);
         const jobId = info.lastInsertRowid;
 
         // Trigger Async Processing (Fire & Forget)

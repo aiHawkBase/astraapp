@@ -1112,3 +1112,45 @@ select:focus {
     margin-top: 0;
     color: var(--primary-dark);
 }
+
+/* --- STORYBOOK ENHANCEMENTS --- */
+.booklet-chapter p:first-of-type::first-letter {
+    font-family: 'Cinzel', serif;
+    font-size: 3.5rem;
+    float: left;
+    margin-top: -5px;
+    margin-right: 10px;
+    color: var(--gold);
+    line-height: 0.8;
+}
+
+.booklet-divider {
+    text-align: center;
+    margin: 60px 0;
+    font-size: 1.5rem;
+    color: var(--gold);
+}
+
+.booklet-divider::after {
+    content: "✦ ✧ ✦";
+    letter-spacing: 10px;
+}
+
+/* Print Overrides for Booklet */
+@media print {
+    .report-container.booklet-mode {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .booklet-chapter {
+        page-break-before: always;
+    }
+
+    .booklet-chapter:first-child {
+        page-break-before: auto;
+    }
+}

@@ -62,7 +62,12 @@ function initDb() {
         INSERT OR IGNORE INTO settings (key, value) VALUES ('job_timeout_ms', '60000');
     `);
 
-    console.log("Database Schema Applied.");
+    // --- MIGRATIONS (Auto-run) ---
+    try { db.exec("ALTER TABLE readings ADD COLUMN user_email TEXT"); } catch (e) { }
+    try { db.exec("ALTER TABLE readings ADD COLUMN api_cost REAL"); } catch (e) { }
+    try { db.exec("ALTER TABLE readings ADD COLUMN prompt_full TEXT"); } catch (e) { }
+
+    console.log("Database Schema Applied & Migrated.");
 }
 
 module.exports = { db, initDb };
