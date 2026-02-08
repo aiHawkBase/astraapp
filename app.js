@@ -287,8 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, delay);
     }
 
-    // --- STEP 1: Basic Info & TEASER 1 GENERATION ---
-    forms.basic.addEventListener('submit', (e) => {
+    // --- STEP 1: Basic Info & TEASER 1 GENERATION (DYNAMIC) ---
+    forms.basic.addEventListener('submit', async (e) => {
         e.preventDefault();
         user.name = document.getElementById('fullName').value;
         const dateVal = document.getElementById('birthDate').value;
@@ -303,21 +303,50 @@ document.addEventListener('DOMContentLoaded', () => {
         user.element = signData.element;
         user.elementKey = getElementKey(user.element);
 
-        // Populate Static Teaser (Hızlı geri bildirim için static data kullanıyoruz şimdilik)
+        // Update UI Static Elements
         document.getElementById('zodiacIcon1').className = `icon ${signData.icon}`;
         document.getElementById('zodiacName1').innerText = `${signData.name} (${signData.dates})`;
 
-        const charText = getRandom(astroData.deepCharacter[user.sign]);
-        const vibeList = astroData.currentVibe[user.elementKey] || astroData.currentVibe['fire'];
-        const vibeText = getRandom(vibeList);
-        const mysteryText = getRandom(astroData.mysteryHook);
+        // --- RITUAL START ---
+        const overlay = document.getElementById('ritual-overlay');
+        overlay.classList.add('active');
 
-        document.getElementById('deepAnalysisText').innerText = `Sayın ${user.name}, ${charText}`;
-        document.getElementById('currentVibeText').innerText = `Yıldızlar diyor ki: "${vibeText}"`;
-        document.getElementById('mysteryHookText').innerText = mysteryText;
+        // Parallel API Fetches
+        try {
+            const [resIntro, resLoveSub, resLoveAct, resTeaser] = await Promise.all([
+                fetch('/api/fortune/random?category=intro'),
+                fetch('/api/fortune/random?category=love_subject'),
+                fetch('/api/fortune/random?category=love_action'),
+                fetch('/api/fortune/random?category=teaser')
+            ]);
 
-        switchStep(steps.s1, steps.t1);
-        Mascot.say(`Hmm... Bir ${signData.name}. Sezgilerim beni yanıltmamış.`, 3000);
+            const intro = (await resIntro.json()).content;
+            const loveSub = (await resLoveSub.json()).content;
+            const loveAct = (await resLoveAct.json()).content;
+            const teaser = (await resTeaser.json()).content;
+
+            // Wait a bit for ritual effect (min 2 seconds)
+            await new Promise(r => setTimeout(r, 2000));
+
+            // Populate Text
+            document.getElementById('deepAnalysisText').innerHTML =
+                `Sayın <strong>${user.name}</strong>, ${intro}<br><br>`;
+
+            document.getElementById('currentVibeText').innerHTML =
+                `Yıldızlar fısıldıyor: "<em>${loveSub} ${loveAct}</em>"`;
+
+            document.getElementById('mysteryHookText').innerText = teaser;
+
+            overlay.classList.remove('active');
+            switchStep(steps.s1, steps.t1);
+            Mascot.say(`Hmm... Bir ${signData.name}. Enerjin çok yoğun.`, 3000);
+
+        } catch (err) {
+            console.error(err);
+            overlay.classList.remove('active');
+            // Fallback
+            switchStep(steps.s1, steps.t1);
+        }
     });
 
     document.getElementById('btn-to-step2').addEventListener('click', () => {
@@ -333,40 +362,47 @@ document.addEventListener('DOMContentLoaded', () => {
         user.district = districtSelect.value;
         user.birthTime = document.getElementById('birthTime').value;
 
-        // Loading Screen (Kısa süreli, lokal veri işleniyor gibi)
-        const btn = document.getElementById('btn-finalize');
-        const loader = document.getElementById('analysisLoader');
-        const progress = document.querySelector('.progress');
+        // Loading Screen (Ritual Overlay)
+        const overlay = document.getElementById('ritual-overlay');
+        overlay.classList.add('active');
 
-        btn.style.display = 'none';
-        loader.classList.remove('hidden');
-
-        // Fake Progress
-        let width = 0;
-        const progressInterval = setInterval(() => {
-            if (width < 100) { width += 2; progress.style.width = width + '%'; }
-        }, 20);
+        // Hide Button
+        document.getElementById('btn-finalize').style.display = 'none';
 
         Mascot.say("Doğum haritanın element dengesine bakıyorum...", 2000);
 
-        // API ÇAĞRISI YOK - Sadece Local Data ile Teaser Hazırla
-        setTimeout(() => {
-            clearInterval(progressInterval);
-            progress.style.width = '100%';
+        // API Call for Career/Teaser
+        (async () => {
+            try {
+                const [resCareer, resTeaser] = await Promise.all([
+                    fetch('/api/fortune/random?category=career'),
+                    fetch('/api/fortune/random?category=teaser')
+                ]);
 
-            // Local Data'dan Rastgele Teaser Seç
-            const mystery = getRandom(astroData.mysteryHook);
+                const career = (await resCareer.json()).content;
+                const teaser = (await resTeaser.json()).content;
 
-            // Teaser 2 İçeriğini Doldur
-            document.getElementById('locationHookText').innerHTML =
-                `<strong>${user.city}</strong> koordinatları, kader ağında kritik bir düğüm noktası.`;
+                // Wait for ritual
+                await new Promise(r => setTimeout(r, 2500));
 
-            document.getElementById('finalCallText').innerText =
-                `Yıldızlar senin için "${mystery}" diyor. Bu bilgiye ulaşmak üzeresin.`;
+                // Populate Text
+                document.getElementById('locationHookText').innerHTML =
+                    `<strong>${user.city}</strong> koordinatlarında yıldızlar fısıldıyor: <br>"${career}"`;
 
-            switchStep(steps.s2, steps.t2);
-            Mascot.say("İnanılmaz... Çok nadir bir dizilim görüyorum!");
-        }, 1500);
+                document.getElementById('finalCallText').innerText =
+                    `Son Kehanet: ${teaser}`;
+
+                overlay.classList.remove('active');
+                switchStep(steps.s2, steps.t2);
+                Mascot.say("İnanılmaz... Çok nadir bir dizilim görüyorum!");
+
+            } catch (error) {
+                console.error(error);
+                overlay.classList.remove('active');
+                // Fallback
+                switchStep(steps.s2, steps.t2);
+            }
+        })();
     });
 
     function prepareTeaser2(data) {

@@ -67,6 +67,58 @@ function initDb() {
     try { db.exec("ALTER TABLE readings ADD COLUMN api_cost REAL"); } catch (e) { }
     try { db.exec("ALTER TABLE readings ADD COLUMN prompt_full TEXT"); } catch (e) { }
 
+    // --- Fortune Content Table (Dynamic Data) ---
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS fortune_content (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT,
+            content TEXT,
+            weight INTEGER DEFAULT 1
+        );
+    `);
+
+    // Seed Data if empty
+    const checkFortune = db.prepare("SELECT count(*) as count FROM fortune_content").get();
+    if (checkFortune.count === 0) {
+        console.log("Seeding Fortune Content...");
+        const seeds = [
+            // Intro
+            { cat: 'intro', txt: "Yıldızların konumu senin için nadir bir kapıyı aralıyor." },
+            { cat: 'intro', txt: "Kozmik enerjiler şu an senin lehine dönüyor." },
+            { cat: 'intro', txt: "Evrenin derinliklerinden gelen bir fısıltı var..." },
+            { cat: 'intro', txt: "Kadim öğretiler bu anın önemini vurguluyor." },
+            { cat: 'intro', txt: "Ruhsal rehberlerin sana bir mesaj göndermek istiyor." },
+
+            // Love Subjects
+            { cat: 'love_subject', txt: "Kalbinin derinliklerinde sakladığın o kişi" },
+            { cat: 'love_subject', txt: "Beklenmedik bir karşılaşma" },
+            { cat: 'love_subject', txt: "Uzun zamandır haber almadığın biri" },
+            { cat: 'love_subject', txt: "Geçmişten gelen bir gölge" },
+            { cat: 'love_subject', txt: "Kaderindeki o gizemli yabancı" },
+
+            // Love Actions
+            { cat: 'love_action', txt: "sana doğru bir adım atmaya hazırlanıyor." },
+            { cat: 'love_action', txt: "seni rüyalarında görüyor." },
+            { cat: 'love_action', txt: "ismini bir yıldız gibi anıyor." },
+            { cat: 'love_action', txt: "bir işaret bekliyor." },
+            { cat: 'love_action', txt: "seninle kozmik bir bağ kurmaya çalışıyor." },
+
+            // Career
+            { cat: 'career', txt: "Yakın zamanda önüne çıkacak bir fırsat, tüm planlarını değiştirebilir." },
+            { cat: 'career', txt: "Emeklerinin karşılığını almak üzeresin, sabrın meyve verecek." },
+            { cat: 'career', txt: "Bir kapı kapanırken, çok daha büyük bir kapı aralanıyor." },
+
+            // Cliffhangers (Hard Truths)
+            { cat: 'teaser', txt: "{LETTER} harfiyle başlayan biri senin hakkında konuşuyor." },
+            { cat: 'teaser', txt: "Ayın 14'ü ile 20'si arasında çok dikkatli olmalısın." },
+            { cat: 'teaser', txt: "Şu an güvendiğin birinin maskesi düşmek üzere." },
+            { cat: 'teaser', txt: "Gizli bir hayranın yakında kendini belli edecek." }
+        ];
+
+        const insert = db.prepare("INSERT INTO fortune_content (category, content) VALUES (?, ?)");
+        seeds.forEach(s => insert.run(s.cat, s.txt));
+    }
+
     console.log("Database Schema Applied & Migrated.");
 }
 

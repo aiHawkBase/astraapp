@@ -366,7 +366,74 @@ app.post('/api/admin/config', (req, res) => {
     }
 });
 
+// --- FORTUNE CONTENT API ---
+
+// 4. Get Random Fortune (Public)
+app.get('/api/fortune/random', (req, res) => {
+    try {
+        const { category } = req.query;
+        let query = "SELECT content FROM fortune_content";
+        let params = [];
+
+        if (category) {
+            query += " WHERE category = ?";
+            params.push(category);
+        }
+
+        query += " ORDER BY RANDOM() LIMIT 1";
+        const row = db.prepare(query).get(...params);
+
+        if (row) {
+            res.json({ content: row.content });
+        } else {
+            res.json({ content: "Yıldızlar şu an sessiz..." });
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 5. Serve Admin Fortune Page
+app.get('/kutsal-icerik-yonetimi', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin_fortune.html'));
+});
+
+// 6. Admin: List All Fortunes
+app.get('/api/admin/fortune', (req, res) => {
+    try {
+        const rows = db.prepare("SELECT * FROM fortune_content ORDER BY id DESC").all();
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 7. Admin: Add Fortune
+app.post('/api/admin/fortune', (req, res) => {
+    try {
+        const { category, content } = req.body;
+        if (!category || !content) return res.status(400).json({ error: "Missing fields" });
+
+        const stmt = db.prepare("INSERT INTO fortune_content (category, content) VALUES (?, ?)");
+        stmt.run(category, content);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 8. Admin: Delete Fortune
+app.delete('/api/admin/fortune/:id', (req, res) => {
+    try {
+        db.prepare("DELETE FROM fortune_content WHERE id = ?").run(req.params.id);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Admin Dashboard: http://localhost:${PORT}/kutsal-yonetim-kapisi`);
+    console.log(`Fortune Admin: http://localhost:${PORT}/kutsal-icerik-yonetimi`);
 });

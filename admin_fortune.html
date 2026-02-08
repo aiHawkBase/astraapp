@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astra | İçerik Yönetimi</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            color: #333;
+            padding: 40px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: #2c3e50;
+            border-bottom: 2px solid #f1c40f;
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #34495e;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 3px;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .badge {
+            background: #ecf0f1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-container">
+        <a href="/kutsal-yonetim-kapisi" class="back-link">← Ana Panele Dön</a>
+        <h1>Kutsal İçerik Yönetimi</h1>
+
+        <div class="add-fortune-form"
+            style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 40px;">
+            <h3 style="margin-top: 0; color: #2c3e50;">Yeni Kehanet Ekle</h3>
+            <div class="form-group">
+                <label>Kategori</label>
+                <select id="cat">
+                    <option value="intro">Giriş (Intro)</option>
+                    <option value="love_subject">Aşk: Özne</option>
+                    <option value="love_action">Aşk: Eylem</option>
+                    <option value="career">Kariyer & Para</option>
+                    <option value="teaser">Gizemli Uyarı (Teaser)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>İçerik</label>
+                <textarea id="content" rows="3" placeholder="Örn: Yıldızlar senin için parlıyor..."></textarea>
+            </div>
+            <button onclick="addFortune()">Ekle</button>
+        </div>
+
+        <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Mevcut Kehanetler</h3>
+        <table id="fortune-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">ID</th>
+                    <th style="width: 150px;">Kategori</th>
+                    <th>İçerik</th>
+                    <th style="width: 80px;">İşlem</th>
+                </tr>
+            </thead>
+            <tbody><!-- Rows here --></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function loadFortunes() {
+            const res = await fetch(`${API_BASE}/admin/fortune`);
+            const data = await res.json();
+            const tbody = document.querySelector('#fortune-table tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>#${item.id}</td>
+                <td><span class="badge">${item.category}</span></td>
+                <td>${item.content}</td>
+                <td><button class="btn-delete" onclick="deleteFortune(${item.id})">Sil</button></td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function addFortune() {
+            const category = document.getElementById('cat').value;
+            const content = document.getElementById('content').value;
+
+            if (!content) return alert("İçerik boş olamaz");
+
+            await fetch(`${API_BASE}/admin/fortune`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category, content })
+            });
+
+            document.getElementById('content').value = '';
+            loadFortunes();
+        }
+
+        async function deleteFortune(id) {
+            if (confirm("Silmek istediğine emin misin?")) {
+                await fetch(`${API_BASE}/admin/fortune/${id}`, { method: 'DELETE' });
+                loadFortunes();
+            }
+        }
+
+        loadFortunes();
+    </script>
+
+</body>
+
+</html>
