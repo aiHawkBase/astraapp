@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- STATE (Durum Yönetimi) ---
+    // Initialize Cosmos Background
+    if (window.Cosmos) {
+        window.Cosmos.init();
+    }
     let user = {
         name: '',
         birthDate: null,
@@ -66,18 +70,53 @@ document.addEventListener('DOMContentLoaded', () => {
                      "mystery_alert": "Yaklaşan büyük bir değişimin habercisi."
                 },
                 "full_report": {
-                    "intro": "Kullanıcıya özel yazılmış, en az 1000 kelimelik, ruhsal potansiyelini ve bu raporun önemini anlatan destansı bir giriş.",
-                    "chapter_1_identity": "GÜNEŞ BURCU VE KOZMİK KİMLİK: (En az 1500 kelime) Kişinin özü, yaşam amacı, babasıyla ilişkisi, parladığı alanlar, gölge yönleri ve mitolojik arketipleri.",
-                    "chapter_2_mask": "YÜKSELEN BURCU VE SOSYAL MASKE: (En az 1500 kelime) Dış dünyaya gösterdiği yüz, fiziksel özellikleri, ilk izlenimi, çocukluk travmaları ve başkalarının onu nasıl algıladığı.",
-                    "chapter_3_emotion": "AY BURCU VE DUYGUSAL DÜNYA: (En az 1500 kelime) Bilinçaltı, annesiyle ilişkisi, duygusal ihtiyaçları, korkuları, güvende hissetme yolları ve ruhsal kökleri.",
-                    "chapter_4_love": "AŞK, İLİŞKİLER VE CİNSELLİK: (En az 1500 kelime) Venüs ve Mars analizi, aşk dili, ideal partneri, ilişkilerde yaptığı hatalar, cinsel enerjisi ve karmik eşleşmeleri.",
-                    "chapter_5_karma": "SATÜRN, KARMA VE ÖNCEKİ YAŞAMLAR: (En az 1500 kelime) Karmik borçlar, yaşam sınavları, korkuları ve ruhsal büyüme planı.",
-                    "chapter_6_career": "KARİYER, FİNANS VE BAŞARI: (En az 1500 kelime) Mesleki yetenekleri, zenginlik potansiyeli, finansal şansı ve ideal kariyer yolu.",
-                    "chapter_7_numerology": "NUMEROLOJİ VE KADER SAYISI: (En az 1000 kelime) Hayat Yolu Numarasının derin analizi ve yaşam misyonu.",
-                    "chapter_8_forecast_q1": "GELECEK PROJEKSİYONU (İLK 3 AY): (En az 1000 kelime) Önümüzdeki 3 ay için ay ay detaylı öngörüler.",
-                    "chapter_9_forecast_q2": "GELECEK PROJEKSİYONU (SONRAKİ 3 AY): (En az 1000 kelime) Sonraki 3 ay için ay ay detaylı öngörüler.",
-                    "chapter_10_ritual": "KİŞİSEL GÜÇ RİTÜELİ: (En az 800 kelime) Kullanıcıya özel, uygulanabilir ve dönüştürücü bir ritüel."
+                    "intro": { "title": "Giriş", "content": "Kullanıcıya özel yazılmış, en az 1000 kelimelik, ruhsal potansiyelini ve bu raporun önemini anlatan destansı bir giriş." },
+                    "chapters": [
+                        { "title": "BÖLÜM 1: GÜNEŞ BURCU VE KOZMİK KİMLİK", "content": "Kişinin özü, yaşam amacı, babasıyla ilişkisi, parladığı alanlar, gölge yönleri ve mitolojik arketipleri. (En az 1000 kelime)" },
+                        { "title": "BÖLÜM 2: YÜKSELEN BURCU VE SOSYAL MASKE", "content": "Dış dünyaya gösterdiği yüz, fiziksel özellikleri, ilk izlenimi, çocukluk travmaları ve başkalarının onu nasıl algıladığı. (En az 1000 kelime)" },
+                        { "title": "BÖLÜM 3: AY BURCU VE DUYGUSAL DÜNYA", "content": "Bilinçaltı, annesiyle ilişkisi, duygusal ihtiyaçları, korkuları, güvende hissetme yolları ve ruhsal kökleri. (En az 1000 kelime)" },
+                        { "title": "BÖLÜM 4: AŞK, İLİŞKİLER VE CİNSELLİK", "content": "Venüs ve Mars analizi, aşk dili, ideal partneri, ilişkilerde yaptığı hatalar, cinsel enerjisi ve karmik eşleşmeleri. (En az 1000 kelime)" },
+                        { "title": "BÖLÜM 5: SATÜRN, KARMA VE ÖNCEKİ YAŞAMLAR", "content": "Karmik borçlar, yaşam sınavları, korkuları ve ruhsal büyüme planı. (En az 1000 kelime)" },
+                        { "title": "BÖLÜM 6: KARİYER, FİNANS VE BAŞARI", "content": "Mesleki yetenekleri, zenginlik potansiyeli, finansal şansı ve ideal kariyer yolu. (En az 1000 kelime)" },
+                        { "title": "BÖLÜM 7: KADER SAYISI", "content": "Hayat Yolu Numarasının derin analizi ve yaşam misyonu. (En az 800 kelime)" },
+                        { "title": "BÖLÜM 8: GELECEK PROJEKSİYONU (İLK 3 AY)", "content": "Önümüzdeki 3 ay için ay ay detaylı öngörüler. (En az 800 kelime)" },
+                        { "title": "BÖLÜM 9: GELECEK PROJEKSİYONU (SONRAKİ 3 AY)", "content": "Sonraki 3 ay için ay ay detaylı öngörüler. (En az 800 kelime)" },
+                        { "title": "BÖLÜM 10: KİŞİSEL GÜÇ RİTÜELİ", "content": "Kullanıcıya özel, uygulanabilir ve dönüştürücü bir ritüel. (En az 800 kelime)" }
+                    ]
                 },
+                "pros_cons": {
+                    "title": "Güçlü ve Gölge Yönler",
+                    "pros": ["Güçlü yön 1", "Güçlü yön 2", "Güçlü yön 3", "Güçlü yön 4", "Güçlü yön 5"],
+                    "cons": ["Gölge yön 1", "Gölge yön 2", "Gölge yön 3", "Gölge yön 4", "Gölge yön 5"],
+                    "analysis": "Bu özelliklerin detaylı analizi."
+                },
+                "astrocartography": {
+                    "title": "Astro-Kartografi: Ruhsal Coğrafya",
+                    "locations": [
+                        { "city": "Şehir 1", "purpose": "Aşk/Kariyer/Karma", "desc": "Neden burası?" },
+                        { "city": "Şehir 2", "purpose": "Aşk/Kariyer/Karma", "desc": "Neden burası?" },
+                        { "city": "Şehir 3", "purpose": "Aşk/Kariyer/Karma", "desc": "Neden burası?" }
+                    ]
+                },
+                "numerology": {
+                    "title": "Numerolojik Öz: Hayat Yolu",
+                    "life_path_number": "X",
+                    "analysis": "Hayat yolu sayısının detaylı analizi."
+                },
+                "calendar_12_months": [
+                    { "month": "Ocak", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Şubat", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Mart", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Nisan", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Mayıs", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Haziran", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Temmuz", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Ağustos", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Eylül", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Ekim", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Kasım", "theme": "Tema", "advice": "Tavsiye" },
+                    { "month": "Aralık", "theme": "Tema", "advice": "Tavsiye" }
+                ],
                 "image_prompts": [
                     "Kullanıcının burcunu simgeleyen, altın detaylı, mistik tarot kartı, 8k, masterpiece (Cover)",
                     "Spiritüel sembolizm içeren soyut sanat eseri (Spirit)",
@@ -184,32 +223,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- MASCOT CONTROLLER ---
-    const Mascot = {
-        elContainer: document.getElementById('mascot-container'),
-        elBubble: document.getElementById('mascot-text'),
-        timer: null,
+    // --- NARRATOR CONTROLLER (Central Dialogue) ---
+    const Narrator = {
+        elOverlay: document.getElementById('narrative-overlay'),
+        elText: document.getElementById('narrative-text'),
+        elBtn: document.getElementById('narrative-btn'),
+        resolve: null,
 
         init() {
-            this.elContainer.classList.remove('hidden');
-            setTimeout(() => this.say("Merhaba! Ben Astra. Ruhunun derinliklerine inmeye hazır mısın?", 5000), 1000);
-        },
-
-        say(text, duration = 4000) {
-            this.elBubble.textContent = text;
-            this.elBubble.classList.add('show');
-            this.elBubble.classList.remove('hidden');
-
-            if (this.timer) clearTimeout(this.timer);
-
-            if (duration > 0) {
-                this.timer = setTimeout(() => {
+            if (this.elBtn) {
+                this.elBtn.addEventListener('click', () => {
                     this.hide();
-                }, duration);
+                    if (this.resolve) {
+                        this.resolve();
+                        this.resolve = null;
+                    }
+                });
             }
         },
 
+        say(text, btnText = "Devam Et") {
+            return new Promise(resolve => {
+                if (this.elText) this.elText.innerText = text;
+                if (this.elBtn) this.elBtn.innerText = btnText;
+                if (this.elOverlay) this.elOverlay.classList.remove('hidden');
+                this.resolve = resolve;
+            });
+        },
+
         hide() {
-            this.elBubble.classList.remove('show');
+            if (this.elOverlay) this.elOverlay.classList.add('hidden');
         }
     };
 
@@ -235,12 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const districtSelect = document.getElementById('birthDistrict');
 
     // --- INIT ---
-    Mascot.init();
+    Narrator.init();
 
     // LANDING PAGE ACTIONS
-    document.getElementById('btn-start').addEventListener('click', () => {
+    document.getElementById('btn-start').addEventListener('click', async () => {
         switchStep(steps.landing, steps.s1);
-        Mascot.say("Harika! Önce seni biraz tanıyalım. Adın ne?");
+        await Narrator.say("Harika! Önce seni biraz tanıyalım. Adın ne?", "Başla");
     });
 
     // Şehirleri Doldur
@@ -266,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 districtSelect.appendChild(opt);
             });
             districtSelect.disabled = false;
-            Mascot.say(`${selectedCity}... Çok özel bir enerji hattı üzerindedir.`);
+            // Narrator.say(`${selectedCity}... Çok özel bir enerji hattı üzerindedir.`, "Devam"); // Optional: Removed to avoid too many clicks
         } else {
             districtSelect.disabled = true;
         }
@@ -310,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- RITUAL START ---
         const overlay = document.getElementById('ritual-overlay');
         overlay.classList.add('active');
+        if (window.Cosmos) window.Cosmos.setSpeed(2.5); // WARP SPEED
 
         // Parallel API Fetches
         try {
@@ -338,25 +382,35 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('mysteryHookText').innerText = teaser;
 
             overlay.classList.remove('active');
+
+            // Generate Random Letter Hook
+            const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            const letterHook = document.getElementById('letterHookText');
+            if (letterHook) letterHook.innerText = `{${randomLetter}} harfiyle başlayan biri senin hakkında konuşuyor.`;
+
+            // Reset Speed
+            if (window.Cosmos) window.Cosmos.setSpeed(0.2);
+
             switchStep(steps.s1, steps.t1);
-            Mascot.say(`Hmm... Bir ${signData.name}. Enerjin çok yoğun.`, 3000);
+            await Narrator.say(`Hmm... Bir ${signData.name}. Enerjin çok yoğun.`, "Devam Et");
 
         } catch (err) {
             console.error(err);
             overlay.classList.remove('active');
             // Fallback
             switchStep(steps.s1, steps.t1);
+            await Narrator.say(`Hmm... Bir ${signData.name}. Enerjin çok yoğun.`, "Devam Et");
         }
     });
 
-    document.getElementById('btn-to-step2').addEventListener('click', () => {
+    document.getElementById('btn-to-step2').addEventListener('click', async () => {
         switchStep(steps.t1, steps.s2);
-        Mascot.say("Şimdi detaya inelim. Doğum haritanın tam koordinatları için saati bilmem gerek.");
+        await Narrator.say("Şimdi detaya inelim. Doğum haritanın tam koordinatları için saati bilmem gerek.", "Tamam");
     });
 
     // --- STEP 2: Advanced Info & API CALL ---
     // --- STEP 2: Advanced Info & PRE-API TEASER ---
-    forms.advanced.addEventListener('submit', (e) => {
+    forms.advanced.addEventListener('submit', async (e) => {
         e.preventDefault();
         user.city = citySelect.value;
         user.district = districtSelect.value;
@@ -365,11 +419,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Loading Screen (Ritual Overlay)
         const overlay = document.getElementById('ritual-overlay');
         overlay.classList.add('active');
+        if (window.Cosmos) window.Cosmos.setSpeed(2.5); // WARP SPEED
 
         // Hide Button
         document.getElementById('btn-finalize').style.display = 'none';
 
-        Mascot.say("Doğum haritanın element dengesine bakıyorum...", 2000);
+        await Narrator.say("Doğum haritanın element dengesine bakıyorum...", "İncele");
 
         // API Call for Career/Teaser
         (async () => {
@@ -393,8 +448,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     `Son Kehanet: ${teaser}`;
 
                 overlay.classList.remove('active');
+                if (window.Cosmos) window.Cosmos.setSpeed(0.2); // Normal Speed
                 switchStep(steps.s2, steps.t2);
-                Mascot.say("İnanılmaz... Çok nadir bir dizilim görüyorum!");
+                await Narrator.say("İnanılmaz... Çok nadir bir dizilim görüyorum!", "Neymiş?");
 
             } catch (error) {
                 console.error(error);
@@ -451,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fake Delay for Payment Processing
         await new Promise(r => setTimeout(r, 2000));
 
-        Mascot.say("Ödeme başarıyla alındı! Analiz sürecini başlattım.", 3000);
+        await Narrator.say("Ödeme başarıyla alındı! Analiz sürecini başlattım.", "Harika");
 
         // IMMEDIATE SUCCESS SCREEN (Don't wait for API)
         switchStep(steps.pay, steps.succ);
@@ -484,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelector('#step-success h2').innerText = "Raporunuz Hazır!";
                 document.querySelector('#step-success p').innerText = "Yıldızlar analizinizi tamamladı. Aşağıdaki butona tıklayarak hemen görüntüleyebilirsiniz veya e-postanızı kontrol edebilirsiniz.";
 
-                Mascot.say("Müjde! Raporun beklenenden hızlı hazırlandı. Hemen inceleyebilirsin.");
+                // Narrator.say("Müjde! Raporun beklenenden hızlı hazırlandı. Hemen inceleyebilirsin.", "Görüntüle");
             }
 
         } catch (error) {
@@ -493,9 +549,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btn-view-report').addEventListener('click', () => {
+    document.getElementById('btn-view-report').addEventListener('click', async () => {
         switchStep(steps.succ, steps.report);
-        Mascot.say("İşte hayatının rehberi. Dikkatlice oku.");
+        await Narrator.say("İşte hayatının rehberi. Dikkatlice oku.", "Okumaya Başla");
     });
 
     // --- REPORT RENDERING (DYNAMIC) ---
@@ -528,10 +584,10 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<div class="birth-chart-container"><img src="${imgs.birth_chart}" class="booklet-image" alt="Doğum Haritası"></div>`;
         }
 
-        if (data.intro) {
+        if (data.full_report && data.full_report.intro) {
             html += `<div class="booklet-chapter">
-                <h2>${data.intro.title || "Giriş"}</h2>
-                <div class="chapter-content"><p>${data.intro.content}</p></div>
+                <h2>${data.full_report.intro.title || "Giriş"}</h2>
+                <div class="chapter-content"><p>${data.full_report.intro.content}</p></div>
             </div>`;
         }
 
@@ -558,22 +614,27 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<img src="${imgs.personality}" class="booklet-image" alt="Ruhsal Portre">`;
         }
 
-        // 5. Chapters
-        if (data.chapters && Array.isArray(data.chapters)) {
-            data.chapters.forEach((chap, index) => {
+        // 5. Chapters (Iterate Array)
+        if (data.full_report.chapters && Array.isArray(data.full_report.chapters)) {
+            data.full_report.chapters.forEach((chap, index) => {
                 html += `<div class="booklet-chapter">
                     <h2>${chap.title}</h2>
                     <div class="chapter-content"><p>${chap.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p></div>`;
 
                 // Inject Images Contextually
-                if (imgs.love && (chap.title.includes('Aşk') || index === 2)) {
+                // Image indices might need adjustment based on chapter count
+                if (imgs.love && (chap.title.includes('AŞK') || index === 3)) { // Index 3 is Ch4
                     html += `<img src="${imgs.love}" class="booklet-image" alt="Aşk" style="margin: 30px 0;">`;
                 }
-                if (imgs.career && (chap.title.includes('Kariyer') || index === 4)) {
+                if (imgs.career && (chap.title.includes('KARİYER') || index === 5)) { // Index 5 is Ch6
                     html += `<img src="${imgs.career}" class="booklet-image" alt="Kariyer" style="margin: 30px 0;">`;
                 }
-                if (imgs.destiny && (chap.title.includes('Satürn') || chap.title.includes('Kader') || index === 5)) {
+                if (imgs.destiny && (chap.title.includes('SATÜRN') || index === 4)) {
                     html += `<img src="${imgs.destiny}" class="booklet-image" alt="Kader" style="margin: 30px 0;">`;
+                }
+                // Add Spirit Image for Ritual
+                if (imgs.spirit && (chap.title.includes('RİTÜEL') || index === 9)) {
+                    html += `<img src="${imgs.spirit}" class="booklet-image" alt="Ritüel" style="margin: 30px 0;">`;
                 }
                 html += `</div>`;
             });

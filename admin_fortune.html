@@ -9,29 +9,50 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #e2e8f0;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gold: #f1c40f;
+        }
+
         body {
-            background: #f8f9fa;
-            color: #333;
-            padding: 40px;
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 20%);
+            color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 40px;
         }
 
         .admin-container {
             max-width: 1000px;
             margin: 0 auto;
-            background: white;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
             font-family: 'Cinzel', serif;
-            color: #2c3e50;
-            border-bottom: 2px solid #f1c40f;
+            color: var(--gold);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 15px;
             margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .form-group {
@@ -42,7 +63,7 @@
             display: block;
             font-weight: bold;
             margin-bottom: 8px;
-            color: #34495e;
+            color: #94a3b8;
         }
 
         input,
@@ -50,25 +71,41 @@
         textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
             font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
         }
 
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
         button {
             padding: 12px 24px;
-            background: #2c3e50;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
 
         button:hover {
-            background: #34495e;
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-seed {
+            background: var(--success);
+            font-size: 0.9rem;
+            padding: 10px 20px;
         }
 
         table {
@@ -81,44 +118,51 @@
         td {
             text-align: left;
             padding: 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         th {
-            background-color: #f8f9fa;
+            background-color: rgba(255, 255, 255, 0.05);
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--gold);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .btn-delete {
-            background: #e74c3c;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
             padding: 6px 12px;
             font-size: 0.85rem;
-            border-radius: 3px;
+            border-radius: 6px;
         }
 
         .btn-delete:hover {
-            background: #c0392b;
+            background: var(--error);
+            color: white;
         }
 
         .badge {
-            background: #ecf0f1;
-            padding: 4px 8px;
-            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
             font-size: 0.85rem;
-            color: #7f8c8d;
+            color: #cbd5e1;
         }
 
         .back-link {
             display: inline-block;
             margin-bottom: 20px;
-            color: #3498db;
+            color: #94a3b8;
             text-decoration: none;
             font-weight: 600;
         }
 
         .back-link:hover {
-            text-decoration: underline;
+            color: white;
         }
     </style>
 </head>
@@ -127,11 +171,15 @@
 
     <div class="admin-container">
         <a href="/kutsal-yonetim-kapisi" class="back-link">← Ana Panele Dön</a>
-        <h1>Kutsal İçerik Yönetimi</h1>
+        <h1>
+            Kutsal İçerik Yönetimi
+            <button class="btn-seed" onclick="seedContent()"><i class="fa-solid fa-leaf"></i> Veritabanını Genişlet
+                (Seed)</button>
+        </h1>
 
         <div class="add-fortune-form"
-            style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 40px;">
-            <h3 style="margin-top: 0; color: #2c3e50;">Yeni Kehanet Ekle</h3>
+            style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; margin-bottom: 40px;">
+            <h3 style="margin-top: 0; color: var(--text-main);">Yeni Kehanet Ekle</h3>
             <div class="form-group">
                 <label>Kategori</label>
                 <select id="cat">
@@ -139,6 +187,7 @@
                     <option value="love_subject">Aşk: Özne</option>
                     <option value="love_action">Aşk: Eylem</option>
                     <option value="career">Kariyer & Para</option>
+                    <option value="spirit">Ruhsal & Spiritüel</option>
                     <option value="teaser">Gizemli Uyarı (Teaser)</option>
                 </select>
             </div>
@@ -149,7 +198,8 @@
             <button onclick="addFortune()">Ekle</button>
         </div>
 
-        <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Mevcut Kehanetler</h3>
+        <h3 style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; color: var(--gold);">Mevcut
+            Kehanetler</h3>
         <table id="fortune-table">
             <thead>
                 <tr>
@@ -207,9 +257,21 @@
             }
         }
 
+        async function seedContent() {
+            if (confirm("Veritabanı genişletilecek (Seed). 100+ yeni kehanet eklenecek. Onaylıyor musun?")) {
+                try {
+                    const res = await fetch(`${API_BASE}/admin/seed`, { method: 'POST' });
+                    const result = await res.json();
+                    alert(result.message);
+                    loadFortunes();
+                } catch (e) {
+                    alert('Hata: ' + e.message);
+                }
+            }
+        }
+
         loadFortunes();
     </script>
-
 </body>
 
 </html>

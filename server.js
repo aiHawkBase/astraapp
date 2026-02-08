@@ -432,6 +432,51 @@ app.delete('/api/admin/fortune/:id', (req, res) => {
     }
 });
 
+// 9. Admin: Unified Stats (History + Today)
+app.get('/api/admin/stats', (req, res) => {
+    try {
+        const total = db.prepare("SELECT count(*) as count FROM readings").get().count;
+        const processing = db.prepare("SELECT count(*) as count FROM readings WHERE status = 'processing'").get().count;
+        const failed = db.prepare("SELECT count(*) as count FROM readings WHERE status = 'failed'").get().count;
+
+        res.json({ total, processing, failed });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 10. Admin: Seed Fortune Content
+app.post('/api/admin/seed', (req, res) => {
+    try {
+        const seedPath = path.join(__dirname, 'src', 'data', 'fortune_seed.json');
+        const fs = require('fs');
+
+        if (!fs.existsSync(seedPath)) {
+            return res.status(404).json({ error: "Seed file not found" });
+        }
+
+        const seeds = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+        const stmt = db.prepare("INSERT INTO fortune_content (category, content) VALUES (?, ?)");
+
+        const transaction = db.transaction((items) => {
+            for (const item of items) {
+                // Check duplicate to prevent spamming on multiple clicks
+                const exists = db.prepare("SELECT id FROM fortune_content WHERE content = ?").get(item.content);
+                if (!exists) {
+                    stmt.run(item.category, item.content);
+                }
+            }
+        });
+
+        transaction(seeds);
+        res.json({ success: true, message: `Seeded ${seeds.length} items.` });
+
+    } catch (e) {
+        console.error("Seed error:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Admin Dashboard: http://localhost:${PORT}/kutsal-yonetim-kapisi`);

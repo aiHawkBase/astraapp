@@ -16,24 +16,25 @@
 
 <body>
 
-    <div class="stars"></div>
-    <div class="twinkling"></div>
+    <!-- THREE.JS UNIVERSE -->
+    <canvas id="cosmos-canvas"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #000;"></canvas>
 
     <!-- RITUAL LOADING OVERLAY -->
     <div id="ritual-overlay">
-        <i class="fa-solid fa-sun ritual-spinner"></i>
+        <div class="ritual-spinner-container">
+            <div class="ritual-sun"></div>
+            <div class="ritual-orbit"></div>
+        </div>
         <h2 class="glow-text">Kozmik Bağlantı Kuruluyor...</h2>
         <p>Yıldızların frekansına uyumlanılıyor.</p>
     </div>
 
-    <!-- Mascot / Cosmic Guide -->
-    <div id="mascot-container" class="mascot-container hidden">
-        <div class="mascot-orb pulse-anim">
-            <div class="eye left"></div>
-            <div class="eye right"></div>
-        </div>
-        <div class="mascot-bubble hidden" id="mascot-text">
-            Merhaba, ben Astra Rehberin...
+    <!-- NARRATIVE OVERLAY (Central Dialogue) -->
+    <div id="narrative-overlay" class="narrative-overlay hidden">
+        <div class="narrative-box glass-panel">
+            <p id="narrative-text">...</p>
+            <button id="narrative-btn" class="btn-action pulse-anim">Anladım</button>
         </div>
     </div>
 
@@ -44,9 +45,7 @@
         <div class="landing-hero">
             <h1 class="glow-text">ASTRA</h1>
             <p class="tagline">Yıldızların Ötesindeki Gerçeği Keşfet</p>
-            <div class="mascot-preview">
-                <div class="mascot-orb"></div>
-            </div>
+
             <p class="description">
                 Kadim Kozmik Bilgelik ve Modern Analiz.<br>
                 Sadece doğum haritanızı değil, ruhunuzun derinliklerini analiz ediyoruz.
@@ -102,7 +101,13 @@
             <p id="deepAnalysisText"></p>
 
             <h4 class="gold-text" style="margin-top: 20px;">Şu Anki Enerjin</h4>
-            <p id="currentVibeText" class="italic-text"></p>
+            <p id="currentVibeText" class="vibe-text"></p>
+            <!-- Letter Hook -->
+            <div id="letterHookContainer"
+                style="margin-top: 15px; padding: 10px; background: rgba(139, 92, 246, 0.1); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-eye" style="color: #8b5cf6;"></i>
+                <p id="letterHookText" style="margin: 0; font-style: italic; font-size: 0.9rem;"></p>
+            </div>
         </div>
 
         <div class="mystery-box">
@@ -257,6 +262,10 @@
 
     <script src="locations.js"></script>
     <script src="data.js"></script>
+    <!-- Three.js Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="src/js/scene.js"></script>
     <script src="app.js"></script>
 </body>
 
