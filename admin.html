@@ -280,13 +280,13 @@
                 const res = await fetch(`${API_BASE}/jobs/${jobId}`);
                 const data = await res.json();
 
-                if (!data.data || !data.data.content_json) {
+                if (!data.data) {
                     win.document.body.innerHTML = "Rapor verisi bulunamadı.";
                     return;
                 }
 
-                // Parse JSON content
-                const content = JSON.parse(data.data.content_json);
+                // JSON content is already parsed by server
+                const content = data.data;
                 const report = content.full_report || {};
                 const images = content.images || {};
 
@@ -325,7 +325,8 @@
                 win.document.write(html);
 
             } catch (e) {
-                win.document.body.innerHTML = "Hata: " + e.message;
+                console.error(e);
+                win.document.body.innerHTML = "<h3>Hata Oluştu</h3><pre>" + e.message + "</pre>";
             }
         }
 

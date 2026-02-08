@@ -475,56 +475,111 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.innerHTML = '';
         contentDiv.classList.add('booklet-mode');
 
+        let html = '';
+
         // 1. Booklet Header
         const title = data.booklet_title || `Kozmik Rehber: ${user.name}`;
-        let html = `
+        html += `
             <div class="booklet-header">
                 <h1>${title}</h1>
                 <p>Hazırlanan: <strong>${user.name}</strong> | ${new Date().toLocaleDateString('tr-TR')}</p>
             </div>
         `;
 
-        // 2. Cover Image
-        if (data.images && data.images.cover) {
-            html += `<img src="${data.images.cover}" class="booklet-image" alt="Kozmik Kapak">`;
-        } else if (data.image_prompts && data.image_prompts[0]) {
-            // Fallback for old API response
-            html += `<div class="alert-box">Görsel yükleniyor...</div>`;
+        // 2. Birth Chart & Intro
+        const imgs = data.images || {};
+        if (imgs.birth_chart) {
+            html += `<div class="birth-chart-container"><img src="${imgs.birth_chart}" class="booklet-image" alt="Doğum Haritası"></div>`;
         }
 
-        // 3. Chapters
+        if (data.intro) {
+            html += `<div class="booklet-chapter">
+                <h2>${data.intro.title || "Giriş"}</h2>
+                <div class="chapter-content"><p>${data.intro.content}</p></div>
+            </div>`;
+        }
+
+        // 3. Pros & Cons (New Section)
+        if (data.pros_cons) {
+            html += `<div class="booklet-chapter">
+                <h2>${data.pros_cons.title || 'Güçlü ve Gölge Yönler'}</h2>
+                <div class="pros-cons-container">
+                    <div class="pc-col pros">
+                        <h3><i class="fa-solid fa-sun"></i> Güçlü Yönler</h3>
+                        <ul>${data.pros_cons.pros.map(i => `<li>${i}</li>`).join('')}</ul>
+                    </div>
+                    <div class="pc-col cons">
+                        <h3><i class="fa-solid fa-moon"></i> Gölge Yönler</h3>
+                        <ul>${data.pros_cons.cons.map(i => `<li>${i}</li>`).join('')}</ul>
+                    </div>
+                </div>
+                <div class="pc-analysis"><p>${data.pros_cons.analysis}</p></div>
+            </div>`;
+        }
+
+        // 4. Personality Image
+        if (imgs.personality) {
+            html += `<img src="${imgs.personality}" class="booklet-image" alt="Ruhsal Portre">`;
+        }
+
+        // 5. Chapters
         if (data.chapters && Array.isArray(data.chapters)) {
             data.chapters.forEach((chap, index) => {
                 html += `<div class="booklet-chapter">
                     <h2>${chap.title}</h2>
                     <div class="chapter-content"><p>${chap.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p></div>`;
 
-                // Inject Love Image
-                if (data.images?.love && (chap.title.includes('Aşk') || chap.title.includes('İlişki') || index === 2)) {
-                    html += `<img src="${data.images.love}" class="booklet-image" alt="Aşk ve İlişkiler">`;
+                // Inject Images Contextually
+                if (imgs.love && (chap.title.includes('Aşk') || index === 2)) {
+                    html += `<img src="${imgs.love}" class="booklet-image" alt="Aşk" style="margin: 30px 0;">`;
                 }
-
-                // Inject Career Image
-                if (data.images?.career && (chap.title.includes('Kariyer') || chap.title.includes('Para') || index === 4)) {
-                    html += `<img src="${data.images.career}" class="booklet-image" alt="Kariyer ve Başarı">`;
+                if (imgs.career && (chap.title.includes('Kariyer') || index === 4)) {
+                    html += `<img src="${imgs.career}" class="booklet-image" alt="Kariyer" style="margin: 30px 0;">`;
                 }
-
+                if (imgs.destiny && (chap.title.includes('Satürn') || chap.title.includes('Kader') || index === 5)) {
+                    html += `<img src="${imgs.destiny}" class="booklet-image" alt="Kader" style="margin: 30px 0;">`;
+                }
                 html += `</div>`;
             });
-        } else if (data.full_report) {
-            // FALLBACK for Mock Data or Old Structure
-            const r = data.full_report;
-            html += `<div class="booklet-chapter"><h2>Giriş</h2><p>${r.intro}</p></div>`;
-            html += `<div class="booklet-chapter"><h2>Kimlik</h2><p>${r.chapter_1_identity}</p></div>`;
-            html += `<div class="booklet-chapter"><h2>Aşk</h2><p>${r.chapter_4_love}</p></div>`;
-            html += `<div class="booklet-chapter"><h2>Kariyer</h2><p>${r.chapter_6_career}</p></div>`;
         }
 
-        // 4. Numerology
+        // 6. Astrocartography
+        if (data.astrocartography) {
+            html += `<div class="booklet-chapter">
+                <h2>${data.astrocartography.title}</h2>
+                <div class="astro-locations">
+                    ${data.astrocartography.locations.map(loc => `
+                        <div class="astro-loc-card">
+                            <h4><i class="fa-solid fa-location-dot"></i> ${loc.city}</h4>
+                            <span class="loc-purpose">${loc.purpose}</span>
+                            <p>${loc.desc}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        }
+
+        // 7. 12-Month Calendar
+        if (data.calendar_12_months) {
+            html += `<div class="booklet-chapter">
+                <h2>12 Aylık Kozmik Takvim</h2>
+                <div class="calendar-grid">
+                    ${data.calendar_12_months.map(m => `
+                        <div class="cal-card">
+                            <div class="cal-header">${m.month}</div>
+                            <div class="cal-theme">${m.theme}</div>
+                            <p>${m.advice}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        }
+
+        // 8. Numerology
         if (data.numerology) {
             html += `
             <div class="booklet-chapter">
-                <h2>Numeroloji & Kader Yolu</h2>
+                <h2>${data.numerology.title || "Numeroloji"}</h2>
                 <div class="numerology-card">
                     <div class="num-display">${data.numerology.life_path_number}</div>
                     <div class="num-content">
@@ -535,17 +590,17 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
-        // 5. Download Action
+        // 9. Download
         html += `
-            <div class="report-actions" style="margin-top: 60px; text-align: center;">
+            <div class="report-actions" style="margin-top: 80px; text-align: center;">
                  <button class="btn-primary" onclick="window.print()">
-                    <i class="fa-solid fa-file-pdf"></i> Kitapçığı PDF Olarak İndir
+                    <i class="fa-solid fa-file-pdf"></i> HAYAT KİTABINI İNDİR
                  </button>
             </div>
         `;
 
         contentDiv.innerHTML = html;
-        console.log("Booklet Rendered Successfully");
+        console.log("Mega Booklet Rendered Successfully");
     }
     // updateWallpaper removed as images are now handled directly via backend URLs
 

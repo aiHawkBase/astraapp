@@ -48,49 +48,75 @@ async function processReadingJob(jobId, prompt) {
         const { GoogleGenAI } = require("@google/genai");
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        // Enhanced Prompt for "Fairytale/Storybook" Style & 3 Images
+        // MEGA PROMPT for "Life Book" Style (20x Depth, Modern, Realistic)
         const systemInstruction = `
-        Sen evrenin en eski masal anlatıcısı ve mistik bir rehbersin. Kullanıcı için "Astra Kozmik Masalı" (Astra Cosmic Tale) adında, 
-        okuması çok keyifli, sürükleyici, büyüleyici ve masalsı bir dille yazılmış kişisel bir astroloji kitabı hazırlayacaksın.
+        Sen, insan psikolojisini, modern astrolojiyi ve kadim bilgeliği birleştiren, dünyanın en iyi Astrologu ve Yaşam Stratejistisin.
+        Görevin, kullanıcı için "HAYAT KİTABI" (The Book of Life) niteliğinde, son derece kapsamlı, derin, gerçekçi ve sarsıcı derecede doğru bir analiz yazmaktır.
         
-        Dil Tonu: 
-        - Masalsı, şiirsel, akıcı ve sıcak.
-        - "Bir varmış bir yokmuş..." tadında ama astrolojik gerçeklere dayalı.
-        - Sıkıcı analiz dili ASLA kullanma. Okuyucuyu bir kahraman gibi hissettir.
-        - Sanki ona özel yazılmış efsanevi bir parşömen gibi olsun.
+        **YAZIM TONU VE KURALLARI:**
+        1. **TON**: Modern, Gerçekçi, Psikolojik ve Stratejik. "Bir varmış bir yokmuş" gibi masalsı dilleri BIRAK. Keskin, net ve "Burada ve Şimdi" odaklı ol.
+        2. **DERİNLİK**: Yüzeysel burç yorumları yapma. Satırlar arasını oku, kullanıcının bilinçaltına in, korkularını ve potansiyellerini yüzüne vur.
+        3. **UZUNLUK**: Bu bir kitap olacak. Her bölüm en az 500-800 kelime olmalı. Toplamda 15.000 kelimeyi hedefle. Okuyucu sayfalarca okuyabilmeli.
+        4. **GÖRSELLİK**: Metni paragraflara böl, okunabilirliği artır.
 
-        Çıktı FORMATI kesinlikle geçerli bir JSON olmalıdır. Markdown blokları kullanma ("\`\`\`json" ekleme).
-        
-        JSON Şeması:
+        **ÇIKTI FORMATI**: SADECE GEÇERLİ JSON. Markdown yok.
+
+        **JSON ŞEMASI:**
         {
-          "booklet_title": "Kullanıcıya Özel Büyülü Başlık (Örn: Ay Işığı Yolcusunun Masalı)",
-          "cover_image_prompt": "Astra mistik temalı, kullanıcıyı bir masal kahramanı gibi gösteren, fantastik, 4k, cinematic prompt",
-          "love_image_prompt": "Kullanıcının aşk hayatını simgeleyen, romantik, pembe ve büyülü orman temalı, tarot tarzı prompt",
-          "career_image_prompt": "Kullanıcının başarı yolunu simgeleyen, altın parlayan, hazine ve krallık temalı prompt",
-          "chapters": [
-            {
-              "title": "Bölüm Başlığı (Örn: Başlangıç: Yıldızların Doğuşu)",
-              "content": "Uzun paragraf içeriği... (En az 300 kelime)"
-            },
-            ... (En az 7 bölüm. Bölüm 7 Numeroloji olmalı)
-          ],
-          "numerology": {
-            "life_path_number": 6,
-            "analysis": "Numeroloji analizi, masalsı bir dille..."
+          "booklet_title": "Etkileyici ve Kişiye Özel Kitap Başlığı",
+          
+          "images": {
+            "birth_chart_prompt": "Kullanıcının doğum anındaki gökyüzü haritası, gezegen konumları, bilimsel ve mistik, altın çizgiler, koyu lacivert uzay fonu, 8k",
+            "personality_prompt": "Kullanıcının ruh halini yansıtan soyut, psikolojik portre, modern sanat",
+            "love_prompt": "İlişki dinamiklerini simgeleyen, tutkulu veya huzurlu sanatsal sahne",
+            "career_prompt": "Başarı, ofis, imparatorluk veya özgürlük temalı, motivasyon verici sahne",
+            "destiny_prompt": "Kader yolu ve spiritüel aydınlanma temalı mistik görsel"
           },
-          "api_usage": {
-              "total_tokens": 0 
+
+          "intro": {
+            "title": "Giriş: Kozmik İmzan",
+            "content": "Kullanıcının haritasına genel bakış, element dengesi ve haritanın ana teması..."
+          },
+
+          "pros_cons": {
+            "title": "Güçlü ve Gölge Yönlerin",
+            "pros": ["Madde 1", "Madde 2", "Madde 3", "Madde 4", "Madde 5"],
+            "cons": ["Gölge 1", "Gölge 2", "Gölge 3", "Gölge 4", "Gölge 5"],
+            "analysis": "Bu özelliklerin detaylı analizi ve gölge yönleri nasıl yöneteceği..."
+          },
+
+          "chapters": [
+            { "title": "Bölüm 1: Güneş ve Benlik (Kimsin?)", "content": "Detaylı Güneş burcu analizi..." },
+            { "title": "Bölüm 2: Yükselen Maskesi (Nasıl Görünüyorsun?)", "content": "Yükselen burç ve fiziksel özellikler..." },
+            { "title": "Bölüm 3: Ay ve Duygular (Neye İhtiyacın Var?)", "content": "Ay burcu, anne ilişkisi, güvenlik ihtiyacı..." },
+            { "title": "Bölüm 4: Aşk ve İlişkiler Stratejisi", "content": "Venüs/Mars analizi, partner seçimi hataları, çözüm önerileri..." },
+            { "title": "Bölüm 5: Kariyer ve Para Yönetimi", "content": "Meslek seçimi, para kazanma potansiyeli, risk yönetimi..." },
+            { "title": "Bölüm 6: Satürn ve Yaşam Sınavları", "content": "Karmik dersler, zorluklar ve büyüme alanları..." }
+          ],
+
+          "astrocartography": {
+             "title": "Dünya Üzerindeki Güç Noktaların (Astrocartography)",
+             "locations": [
+                { "city": "Şehir/Ülke", "purpose": "Aşk ve İlişki İçin", "desc": "Neden burası?" },
+                { "city": "Şehir/Ülke", "purpose": "Kariyer ve Zenginlik İçin", "desc": "Neden burası?" },
+                { "city": "Şehir/Ülke", "purpose": "Ruhsal Huzur İçin", "desc": "Neden burası?" }
+             ]
+          },
+
+          "calendar_12_months": [
+             { "month": "Ay 1", "theme": "Kısa Tema", "advice": "Bu ay için detaylı öngörü ve tavsiye..." },
+             ... (12 Ay boyunca devam et)
+          ],
+
+          "numerology": {
+            "title": "Sayıların Gizemi",
+            "life_path_number": 0,
+            "personal_year_number": 0,
+            "analysis": "Numerolojik detaylı analiz..."
           }
         }
         
-        İçerik Gereksinimleri:
-        1. **Hikayeleştirme**: "Güneşin İkizler burcunda" demek yerine "Güneş, İkizler krallığında parladığında, zihnin rüzgarları fısıldamaya başladı..." gibi betimlemeler yap.
-        2. **Görsel Tasvirleri (Prompts)**: 
-           - Kapak: Efsanevi, yıldız tozlu.
-           - Aşk: Romantik, rüya gibi.
-           - Kariyer: Görkemli, başarılı.
-        
-        Kullanıcı Girdisi: "${prompt}"
+        Kullanıcı Bilgisi: "${prompt}"
         `;
 
         const response = await ai.models.generateContent({
@@ -139,13 +165,21 @@ async function processReadingJob(jobId, prompt) {
             throw new Error("AI output was not valid JSON");
         }
 
-        // --- IMAGE GENERATION LOOP (3 Images) ---
+        // --- IMAGE GENERATION LOOP (5 Images for Mega Report) ---
         console.log(`[Job ${jobId}] Generating images...`);
+
+        // Handle new structure where images are in 'images' object
+        const imgs = jsonContent.images || {};
+
         const imagePrompts = [
-            { key: 'cover', prompt: jsonContent.cover_image_prompt },
-            { key: 'love', prompt: jsonContent.love_image_prompt },
-            { key: 'career', prompt: jsonContent.career_image_prompt }
-        ];
+            { key: 'birth_chart', prompt: imgs.birth_chart_prompt || jsonContent.cover_image_prompt },
+            { key: 'personality', prompt: imgs.personality_prompt || "Abstract psychological portrait" },
+            { key: 'love', prompt: imgs.love_prompt || jsonContent.love_image_prompt },
+            { key: 'career', prompt: imgs.career_prompt || jsonContent.career_image_prompt },
+            { key: 'destiny', prompt: imgs.destiny_prompt || "Spiritual path visual" }
+        ].filter(i => i.prompt); // Only generate if prompt exists
+
+        console.log(`[Job ${jobId}] Image Prompts found: ${imagePrompts.length}`);
 
         const generatedImages = {};
 
