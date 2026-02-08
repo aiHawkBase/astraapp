@@ -14,9 +14,9 @@
     --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
     --shadow-hover: 0 15px 35px rgba(74, 105, 189, 0.2);
 
-    /* Typography */
-    --font-heading: 'Outfit', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    /* Typography - Updated for Premium Feel */
+    --font-heading: 'Cinzel', serif;
+    --font-body: 'Montserrat', sans-serif;
 }
 
 /* --- GLOBAL RESET & TYPOGRAPHY --- */
@@ -1022,4 +1022,93 @@ select:focus {
     .report-page {
         page-break-after: always;
     }
+}
+
+/* --- BOOKLET STYLES (New) --- */
+.report-container.booklet-mode {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fffafa;
+    /* Cream Paper */
+    padding: 80px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+    color: #2c3e50;
+    line-height: 2;
+    font-size: 1.15rem;
+    position: relative;
+    /* Paper Texture effect if desired */
+}
+
+.booklet-header {
+    text-align: center;
+    margin-bottom: 80px;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 40px;
+}
+
+.booklet-header h1 {
+    font-size: 3.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.booklet-chapter {
+    margin-bottom: 100px;
+    page-break-inside: avoid;
+}
+
+.booklet-chapter h2 {
+    font-size: 2.2rem;
+    color: var(--primary-dark);
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-left: 5px solid var(--gold);
+    padding-left: 20px;
+}
+
+.booklet-image {
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    margin: 40px 0;
+    transition: transform 0.5s ease;
+}
+
+.booklet-image:hover {
+    transform: scale(1.01);
+}
+
+.numerology-card {
+    background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
+    border: 1px solid var(--gold);
+    padding: 40px;
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    border-radius: 8px;
+    margin: 50px 0;
+}
+
+.num-display {
+    background: var(--gold);
+    color: #fff;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 10px 20px rgba(246, 185, 59, 0.4);
+}
+
+.num-content h3 {
+    margin-top: 0;
+    color: var(--primary-dark);
 }

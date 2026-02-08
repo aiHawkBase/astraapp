@@ -401,57 +401,53 @@ document.addEventListener('DOMContentLoaded', () => {
     forms.payment.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payBtn = forms.payment.querySelector('button');
-        const defaultBtnText = payBtn.innerHTML;
+        const userEmail = document.getElementById('userEmail').value;
 
-        payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Kozmik Bağlantı Kuruluyor...';
+        payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> İşleminiz Onaylanıyor...';
         payBtn.disabled = true;
 
-        Mascot.say("Ödeme onaylandı! Yıldız haritanın kilidini açıyorum...", 3000);
+        // Fake Delay for Payment Processing
+        await new Promise(r => setTimeout(r, 2000));
 
+        Mascot.say("Ödeme başarıyla alındı! Analiz sürecini başlattım.", 3000);
+
+        // IMMEDIATE SUCCESS SCREEN (Don't wait for API)
+        switchStep(steps.pay, steps.succ);
+
+        // Update Success Message for Email Flow
+        document.querySelector('#step-success h2').innerText = "Siparişiniz Alındı!";
+        document.querySelector('#step-success p').innerHTML =
+            `Detaylı "Astra Kozmik Kitapçığınız" hazırlanıyor.<br>
+            Tamamlandığında <strong>${userEmail}</strong> adresine gönderilecektir.<br>
+            <span style="font-size: 0.9em; color: #666;">(Ortalama teslim süresi: 5-10 dakika)</span>`;
+
+        const btnView = document.getElementById('btn-view-report');
+        btnView.style.display = 'none'; // Hide initially
+        btnView.innerText = "Raporunuz Hazır! Görüntüle";
+
+        // Start Actual API Call in Background
         try {
-            // 1. GERÇEK API ÇAĞRISI (Paralel Başlat)
-            const apiPromise = AstraAPI.generateReading(user);
+            console.log("Background Job Started...");
+            const result = await AstraAPI.generateReading(user); // This polls until finish
 
-            // 2. Yapay Bekleme & Mesajlar (Premium His) - 8 Saniye
-            const stepsMessages = [
-                "Gezegen konumları hesaplanıyor...",
-                "Doğum haritanın derinliklerine iniliyor...",
-                "Karmik düğümler çözümleniyor...",
-                "Ruh eşinle olan enerjin taranıyor...",
-                "Neredeyse hazır..."
-            ];
-
-            for (let i = 0; i < stepsMessages.length; i++) {
-                setTimeout(() => {
-                    Mascot.say(stepsMessages[i], 1500);
-                }, i * 1600);
-            }
-
-            // En az 8 saniye bekle
-            await new Promise(resolve => setTimeout(resolve, 8000));
-
-            const result = await apiPromise;
-
-            // 2. Sonucu Kaydet
+            // When finished:
             if (result) {
                 user.apiResult = result;
+                await renderFullReport(); // Render hidden report
 
-                // 3. Raporu Render Et (Arka planda)
-                await renderFullReport();
+                // Show Button if user is still here
+                btnView.style.display = 'inline-block';
+                btnView.classList.add('pulse-anim');
 
-                // 4. Başarılı sayfasına geç
-                switchStep(steps.pay, steps.succ);
-                Mascot.say("Tebrikler! Kozmik raporun hazır. Hayatını değiştirecek bilgiler seni bekliyor.");
-            } else {
-                throw new Error("API boş yanıt döndü");
+                document.querySelector('#step-success h2').innerText = "Raporunuz Hazır!";
+                document.querySelector('#step-success p').innerText = "Yıldızlar analizinizi tamamladı. Aşağıdaki butona tıklayarak hemen görüntüleyebilirsiniz veya e-postanızı kontrol edebilirsiniz.";
+
+                Mascot.say("Müjde! Raporun beklenenden hızlı hazırlandı. Hemen inceleyebilirsin.");
             }
 
         } catch (error) {
-            console.error("Kritik Hata:", error);
-            payBtn.innerHTML = defaultBtnText;
-            payBtn.disabled = false;
-            Mascot.say("Üzgünüm, kozmik bağlantıda bir sorun oluştu. Lütfen tekrar dene.", 5000);
-            alert("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+            console.error("Background Job Failed:", error);
+            // Silent fail - user expects email anyway
         }
     });
 
@@ -462,188 +458,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- REPORT RENDERING (DYNAMIC) ---
     // --- REPORT RENDERING (SINGLE WALLPAPER LOGIC) ---
+    // --- REPORT RENDERING (DYNAMIC BOOKLET) ---
     async function renderFullReport() {
         if (!user.apiResult) return;
 
         const data = user.apiResult;
-        const report = data.full_report;
-        const profile = data.user_profile;
         const contentDiv = document.getElementById('report-content');
 
-        document.getElementById('report-user-name').innerText = user.name;
-        document.getElementById('report-date').innerText = new Date().toLocaleDateString('tr-TR');
+        // Clear previous content
+        contentDiv.innerHTML = '';
+        contentDiv.classList.add('booklet-mode');
 
-        // TEK WALLPAPER PROMPT (Cover için)
-        // Eğer API'dan prompt gelmediyse fallback oluştur.
-        const wallpaperPrompt = (data.image_prompts && data.image_prompts.length > 0)
-            ? data.image_prompts[0]
-            : `Mystical tarot card for ${user.name}, ${profile.sun_sign}, gold accents, masterpiece, 8k`;
-
-        let reportHTML = `
-            <div class="report-intro">
-                <h3>Merhaba ${user.name},</h3>
-                <p class="intro-text">${report.intro}</p>
-                <div class="user-badges">
-                    <span class="badge">☀️ ${profile.sun_sign}</span>
-                    <span class="badge">🏹 ${profile.rising_sign}</span>
-                    <span class="badge">🌙 ${profile.moon_sign}</span>
-                    <span class="badge">🔢 Yol: ${profile.life_path_number}</span>
-                </div>
+        // 1. Booklet Header
+        const title = data.booklet_title || `Kozmik Rehber: ${user.name}`;
+        let html = `
+            <div class="booklet-header">
+                <h1>${title}</h1>
+                <p>Hazırlanan: <strong>${user.name}</strong> | ${new Date().toLocaleDateString('tr-TR')}</p>
             </div>
-            
-            <div class="report-page cover-page">
-                <h2>Bölüm 1: Kozmik Kimliğin & Güneş</h2>
-                <!-- WALLPAPER BURAYA GELECEK (100% Opacity) -->
-                <div class="chart-placeholder" id="img-wallpaper-cover" style="height: 600px; margin: 20px 0;">
-                    <div class="loading-spinner"><i class="fa-solid fa-paintbrush fa-spin"></i> Senin İçin Özel Bir Tablo Çiziliyor...</div>
-                </div>
-                <p style="white-space: pre-line;">${report.chapter_1_identity}</p>
-            </div>
+        `;
 
-            <!-- Diğer Sayfalar (Arka Plana Wallpaper Gelecek - CSS ile) -->
-            <div class="report-page wallpaper-bg">
-                <h2>Bölüm 2: Sosyal Masken (Yükselen)</h2>
-                <p style="white-space: pre-line;">${report.chapter_2_mask}</p>
-            </div>
+        // 2. Cover Image
+        if (data.images && data.images.cover) {
+            html += `<img src="${data.images.cover}" class="booklet-image" alt="Kozmik Kapak">`;
+        } else if (data.image_prompts && data.image_prompts[0]) {
+            // Fallback for old API response
+            html += `<div class="alert-box">Görsel yükleniyor...</div>`;
+        }
 
-            <div class="report-page wallpaper-bg">
-                <h2>Bölüm 3: Duygusal Dünyan (Ay)</h2>
-                <p><strong>Ruh Hayvanın:</strong> ${profile.spirit_animal}</p>
-                <p style="white-space: pre-line;">${report.chapter_3_emotion}</p>
-            </div>
+        // 3. Chapters
+        if (data.chapters && Array.isArray(data.chapters)) {
+            data.chapters.forEach((chap, index) => {
+                html += `<div class="booklet-chapter">
+                    <h2>${chap.title}</h2>
+                    <div class="chapter-content"><p>${chap.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p></div>`;
 
-            <div class="report-page wallpaper-bg">
-                <h2>Bölüm 4: Aşk ve İlişkiler</h2>
-                <p style="white-space: pre-line;">${report.chapter_4_love}</p>
-            </div>
+                // Inject Love Image
+                if (data.images?.love && (chap.title.includes('Aşk') || chap.title.includes('İlişki') || index === 2)) {
+                    html += `<img src="${data.images.love}" class="booklet-image" alt="Aşk ve İlişkiler">`;
+                }
 
-            <div class="report-page wallpaper-bg">
-                <h2>Bölüm 5: Karma ve Satürn</h2>
-                <p style="white-space: pre-line;">${report.chapter_5_karma}</p>
-            </div>
+                // Inject Career Image
+                if (data.images?.career && (chap.title.includes('Kariyer') || chap.title.includes('Para') || index === 4)) {
+                    html += `<img src="${data.images.career}" class="booklet-image" alt="Kariyer ve Başarı">`;
+                }
 
-            <div class="report-page wallpaper-bg">
-                <h2>Bölüm 6: Kariyer ve Finans</h2>
-                <p style="white-space: pre-line;">${report.chapter_6_career}</p>
-            </div>
+                html += `</div>`;
+            });
+        } else if (data.full_report) {
+            // FALLBACK for Mock Data or Old Structure
+            const r = data.full_report;
+            html += `<div class="booklet-chapter"><h2>Giriş</h2><p>${r.intro}</p></div>`;
+            html += `<div class="booklet-chapter"><h2>Kimlik</h2><p>${r.chapter_1_identity}</p></div>`;
+            html += `<div class="booklet-chapter"><h2>Aşk</h2><p>${r.chapter_4_love}</p></div>`;
+            html += `<div class="booklet-chapter"><h2>Kariyer</h2><p>${r.chapter_6_career}</p></div>`;
+        }
 
-            <div class="report-page wallpaper-bg">
-                <h2>Bölüm 7: Numeroloji & Kader</h2>
-                <div class="numerology-box">
-                    <div class="num-circle">${profile.life_path_number}</div>
-                    <div class="num-desc">
-                        <h4>Hayat Yolu Sayın</h4>
-                        <p style="white-space: pre-line;">${report.chapter_7_numerology}</p>
+        // 4. Numerology
+        if (data.numerology) {
+            html += `
+            <div class="booklet-chapter">
+                <h2>Numeroloji & Kader Yolu</h2>
+                <div class="numerology-card">
+                    <div class="num-display">${data.numerology.life_path_number}</div>
+                    <div class="num-content">
+                        <h3>Hayat Yolu Sayın</h3>
+                        <p>${data.numerology.analysis}</p>
                     </div>
                 </div>
-            </div>
+            </div>`;
+        }
 
-            <div class="report-page wallpaper-bg forecast-page">
-                <h2>Bölüm 8 & 9: 6 Aylık Gelecek Projeksiyonu</h2>
-                <div class="forecast-card">
-                    <h3>Önümüzdeki 3 Ay (Çeyrek 1)</h3>
-                    <p style="white-space: pre-line;">${report.chapter_8_forecast_q1}</p>
-                </div>
-                <div class="forecast-card">
-                    <h3>Sonraki 3 Ay (Çeyrek 2)</h3>
-                    <p style="white-space: pre-line;">${report.chapter_9_forecast_q2}</p>
-                </div>
-            </div>
-
-            <div class="report-page wallpaper-bg ritual-page">
-                <h2>Bölüm 10: Kişisel Ritüelin</h2>
-                <div class="ritual-box">
-                    <span class="ritual-icon">🕯️</span>
-                    <p style="white-space: pre-line;">${report.chapter_10_ritual}</p>
-                </div>
-            </div>
-            
-            <div class="report-actions" style="margin-top: 40px; text-align: center;">
-                 <button id="btn-download-pdf" class="btn-primary" onclick="window.print()">
-                    <i class="fa-solid fa-file-pdf"></i> Raporu PDF Olarak İndir
+        // 5. Download Action
+        html += `
+            <div class="report-actions" style="margin-top: 60px; text-align: center;">
+                 <button class="btn-primary" onclick="window.print()">
+                    <i class="fa-solid fa-file-pdf"></i> Kitapçığı PDF Olarak İndir
                  </button>
             </div>
         `;
 
-        contentDiv.innerHTML = reportHTML;
-
-        // TEK WALLPAPER ÇAĞRISI
-        await updateWallpaper(wallpaperPrompt);
+        contentDiv.innerHTML = html;
+        console.log("Booklet Rendered Successfully");
     }
-
-    async function updateWallpaper(prompt) {
-        const elCover = document.getElementById('img-wallpaper-cover');
-        if (!elCover) return;
-
-        const bgPages = document.querySelectorAll('.wallpaper-bg');
-
-        try {
-            console.log(`Wallpaper isteniyor:`, prompt);
-
-            let imageUrl = null;
-
-            // 1. Önce Gemini Image Gen (Server üzerinden) Dene
-            try {
-                const res = await fetch('/api/generate-image', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt + ", epic, cinematic lighting, 8k, wallpaper style" })
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.imageUrl) {
-                        imageUrl = data.imageUrl;
-                        console.log("Wallpaper Üretildi (Gemini)");
-                    }
-                }
-            } catch (err) {
-                console.warn("Wallpaper Gen Failed, falling back...", err);
-            }
-
-            // 2. Fallback: Pollinations.ai
-            if (!imageUrl) {
-                const refinedPrompt = `${prompt}, mystical tarot card style, cinematic lighting, 8k resolution, highly detailed, gold accents, ethereal atmosphere, digital art, masterpiece, wallpaper`;
-                const encodedPrompt = encodeURIComponent(refinedPrompt);
-                const seed = Math.floor(Math.random() * 99999);
-                imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux`;
-            }
-
-            // Görseli Yükle
-            const img = new Image();
-            img.src = imageUrl;
-
-            await new Promise((resolve) => {
-                img.onload = resolve;
-                img.onerror = resolve;
-            });
-
-            // 1. Kapak Resmi (Tam Görünüm)
-            elCover.innerHTML = '';
-            elCover.style.backgroundImage = `url('${imageUrl}')`;
-            elCover.style.backgroundSize = 'cover';
-            elCover.style.backgroundPosition = 'center';
-            elCover.style.borderRadius = '15px';
-            elCover.style.boxShadow = '0 10px 40px rgba(0,0,0,0.5)';
-            elCover.style.height = '600px';
-
-            // 2. Diğer Sayfalara Arka Plan Olarak Ekle (10% Opacity Logic)
-            bgPages.forEach(page => {
-                // Linear Gradient ile Cream/Kağıt rengi katman (%92 Opacity) + Resim
-                // #fdfbf7 rengi (253, 251, 247) sitenin genel arka planıdır.
-                page.style.backgroundImage = `linear-gradient(rgba(253, 251, 247, 0.92), rgba(253, 251, 247, 0.92)), url('${imageUrl}')`;
-                page.style.backgroundSize = 'cover';
-                page.style.backgroundPosition = 'center';
-                page.style.backgroundAttachment = 'fixed'; // Parallax etkisi
-                page.style.border = '1px solid rgba(212, 175, 55, 0.3)'; // Premium Gold Sınır
-                page.style.boxShadow = '0 5px 15px rgba(0,0,0,0.05)'; // Hafif derinlik
-            });
-
-        } catch (e) {
-            console.error("Wallpaper yüklenemedi", e);
-            elCover.innerHTML = '<span class="error">Görsel oluşturulamadı</span>';
-        }
-    }
+    // updateWallpaper removed as images are now handled directly via backend URLs
 
     // --- UTILS ---
     function getElementKey(elName) {
