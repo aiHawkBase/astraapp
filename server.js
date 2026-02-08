@@ -53,7 +53,21 @@ async function processReadingJob(jobId, prompt) {
             contents: prompt,
         });
 
-        const rawText = response.text();
+        // SDK V2 Handling
+        let rawText = "";
+
+        // If response has a text function, use it
+        if (typeof response.text === 'function') {
+            rawText = response.text();
+        } else if (response.response && typeof response.response.text === 'function') {
+            // Some versions nest the response
+            rawText = response.response.text();
+        } else if (response.candidates && response.candidates[0] && response.candidates[0].content) {
+            // Fallback: manual extraction
+            rawText = response.candidates[0].content.parts.map(p => p.text).join('');
+        } else {
+            throw new Error("Unexpected response format from Gemini API");
+        }
 
         // Clean markdown
         const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -148,25 +162,16 @@ app.post('/api/generate-image', async (req, res) => {
 
         try {
             // Attempt to use Imagen 3
-            // Note: The specific model string and method might vary by region/access.
-            // unique model: 'imagen-3.0-generate-001'
+            // Note: generateContent with Imagen model
+            // config: responseMimeType is NOT supported for image generation models in generateContent usually, 
+            // instead we just ask for content.
+
             const response = await ai.models.generateContent({
                 model: 'imagen-3.0-generate-001',
-                contents: prompt,
-                config: {
-                    responseMimeType: 'image/jpeg'
-                }
+                contents: prompt
             });
 
             // Inspect response for image data
-            // The SDK typically returns the raw response structure in one of the properties or helpers
-            // For 'generateContent' with images, we expect 'inlineData' in parts.
-
-            // Note: response might be a wrapper. 
-            // In the new SDK, response.text() is a helper for text. 
-            // We need to look at response.candidates...
-
-            // Let's assume the standard structure is accessible.
             const candidates = response.candidates;
             if (candidates && candidates[0] && candidates[0].content && candidates[0].content.parts) {
                 for (const part of candidates[0].content.parts) {
